@@ -54,3 +54,4 @@ Active implementation of application components (frontend UI, backend API, local
 - **Technical Specifications**: [`docs/technical/README.md`](docs/technical/README.md)
 - **Development Roadmap**: [`docs/development/ROADMAP.md`](docs/development/ROADMAP.md)
 - **Contributing Guidelines**: [`CONTRIBUTING.md`](CONTRIBUTING.md)
+

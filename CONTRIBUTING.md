@@ -76,3 +76,4 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
 - **Testing**: Accompany new features and bug fixes with corresponding unit and integration tests.
 - **No Dead Code**: Remove commented-out code, debug statements, and temporary scratch files before opening a PR.
 - **Security Consciousness**: Never commit credentials, secrets, private keys, or personal environment files (`.env`).
+

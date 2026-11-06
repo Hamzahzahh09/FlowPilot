@@ -66,3 +66,4 @@ Key security priorities to be detailed:
 Architectural Decision Records (ADRs) will be maintained in this section or in dedicated sub-documents (`docs/architecture/decisions/`):
 
 - **ADR-001**: *TBD*
+
