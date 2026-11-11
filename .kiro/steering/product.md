@@ -28,8 +28,16 @@ The chimera: probabilistic AI + deterministic pipeline + a human who holds the l
 | Edge between nodes | Stitch |
 
 ## Design rules
-- Dark lab look: bg #0B0F0C, panel #141B16, success #8BC34A, active/approval #F5E663, failure #C0504D, text #E6EDE8.
-- Status must never rely on color alone (add icon + text label).
+`.kiro/steering/design.md` is the source of truth for all visuals. Summary:
+- Dark, soft, rounded developer-tool look in the style of n8n's canvas.
+  Tokens: bg #1f1f21, surface #29292c, node #343437, text #f2f2f3,
+  muted #9a9aa3, single accent #ff9fb2; status colors ok #7ddba3,
+  bad #ff8a80, wait #f2c879 (status only). Light theme uses the same token names.
+- Radius: containers 28px, nodes 16px, pills 999px. Flat surfaces: no
+  gradients, no glow, no card shadows.
+- The Frankenstein theme lives in copy (node names, report names), never in
+  heavy visuals. No emoji.
+- Status must never rely on color alone (always a text label too).
 - Respect prefers-reduced-motion. Readability beats horror effects.
 
 ## Demo mode (judges)
