@@ -34,8 +34,9 @@ As a developer I want one set of tokens so every component looks consistent.
 3. A log panel SHALL sit below the canvas.
 4. An inspector panel SHALL sit right of the canvas and SHALL be hidden below
    820px viewport width.
-5. At 390px width the layout SHALL not overflow the page; the canvas scrolls
-   horizontally inside its card.
+5. At 390px width the layout SHALL not overflow the page. The canvas SHALL
+   fit all nodes inside its card (fitView padding 0.2, refit on resize);
+   users can pan and zoom to read details.
 6. Tab pills: mono 13px, radius 999px; the selected pill uses `--accent`
    background with dark text.
 

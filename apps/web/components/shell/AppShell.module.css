@@ -46,8 +46,9 @@
   }
 }
 
-/* Phones: let the page grow, give the canvas a fixed height and
-   scroll it horizontally inside its card. */
+/* Phones: let the page grow and give the canvas a fixed height.
+   The canvas refits to the card width (FitOnResize), so all nodes stay visible;
+   users can still pan inside the card. */
 @media (max-width: 640px) {
   .shell {
     grid-template-rows: auto 440px 260px;
@@ -55,14 +56,5 @@
     min-height: 100dvh;
     padding: 8px;
     gap: 8px;
-  }
-
-  .canvasCard {
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-
-  .canvasInner {
-    width: 960px;
   }
 }

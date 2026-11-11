@@ -8,9 +8,11 @@ import {
   useNodesState,
   type DefaultEdgeOptions,
   type Edge,
+  type FitViewOptions,
   type NodeTypes,
   type ProOptions,
 } from '@xyflow/react'
+import { FitOnResize } from '@/components/flow/FitOnResize'
 import { FlowNode } from '@/components/flow/FlowNode'
 import type { FlowNodeType } from '@/lib/workflow/types'
 
@@ -23,8 +25,9 @@ const DEFAULT_EDGE_OPTIONS: DefaultEdgeOptions = { type: 'default' }
 // React Flow is MIT licensed; hiding the attribution is allowed.
 const PRO_OPTIONS: ProOptions = { hideAttribution: true }
 
-// fitView only measures the 80x80 boxes, so pad enough for the labels below them.
-const FIT_VIEW_OPTIONS = { padding: 0.25 }
+// fitView measures only the 80x80 boxes; 0.2 padding leaves room for the labels.
+// minZoom is low enough that the whole graph fits a 390px-wide card.
+const FIT_VIEW_OPTIONS: FitViewOptions = { padding: 0.2, minZoom: 0.25, maxZoom: 1.25 }
 
 interface CanvasProps {
   initialNodes: FlowNodeType[]
@@ -46,11 +49,12 @@ export function Canvas({ initialNodes, initialEdges }: CanvasProps) {
       nodesConnectable={false}
       fitView
       fitViewOptions={FIT_VIEW_OPTIONS}
-      minZoom={0.4}
+      minZoom={0.25}
       maxZoom={1.75}
       proOptions={PRO_OPTIONS}
     >
       <Background variant={BackgroundVariant.Dots} gap={22} size={1.6} color="var(--dot)" />
+      <FitOnResize options={FIT_VIEW_OPTIONS} />
     </ReactFlow>
   )
 }

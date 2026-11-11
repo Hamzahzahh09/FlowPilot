@@ -50,7 +50,8 @@ lib/run/                (task 6) typed run store + mock runner
 .shell   grid rows: topbar | main | log        height 100dvh, padding 12px
 .main    grid cols: canvas card | inspector 300px
 <820px   inspector display:none, single column
-<640px   canvas card scrolls horizontally; inner min-width 960px
+<640px   page grows, canvas card 440px tall; canvas refits to card width
+         (fitView padding 0.2, minZoom 0.25) via FitOnResize
 ```
 
 ## Node model
