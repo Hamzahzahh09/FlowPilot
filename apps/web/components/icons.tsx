@@ -52,6 +52,87 @@ export function ResetIcon(props: IconProps) {
   )
 }
 
+/* App and navigation icons */
+
+export function WorkflowsIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="3" y="4" width="6" height="6" rx="2" />
+      <rect x="15" y="4" width="6" height="6" rx="2" />
+      <rect x="9" y="15" width="6" height="6" rx="2" />
+      <path d="M9 7h6" />
+      <path d="M6 10v2a3 3 0 0 0 3 3" />
+      <path d="M18 10v2a3 3 0 0 1-3 3" />
+    </Svg>
+  )
+}
+
+export function RunsIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5V12l3 2" />
+    </Svg>
+  )
+}
+
+export function RunnerIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="3.5" y="4.5" width="17" height="15" rx="3" />
+      <path d="m8 10 2.5 2L8 14" />
+      <path d="M13 14h3" />
+    </Svg>
+  )
+}
+
+export function SettingsIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M4 7h9" />
+      <path d="M17 7h3" />
+      <circle cx="15" cy="7" r="2" />
+      <path d="M4 17h3" />
+      <path d="M11 17h9" />
+      <circle cx="9" cy="17" r="2" />
+    </Svg>
+  )
+}
+
+export function PlusIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </Svg>
+  )
+}
+
+export function ChevronDownIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="m6 9 6 6 6-6" />
+    </Svg>
+  )
+}
+
+export function CopyIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="8.5" y="8.5" width="11" height="11" rx="2.5" />
+      <path d="M15.5 8.5V6.5a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2" />
+    </Svg>
+  )
+}
+
+export function CheckIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="m5 12.5 4.5 4.5L19 7.5" />
+    </Svg>
+  )
+}
+
 /* Node icons */
 
 export function SparkIcon(props: IconProps) {

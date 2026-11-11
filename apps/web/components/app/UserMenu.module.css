@@ -1,0 +1,89 @@
+.root {
+  position: relative;
+  flex: none;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 10px 0 4px;
+  border: 1px solid var(--node-hover);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  cursor: pointer;
+}
+
+.trigger:hover {
+  background: var(--node);
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--node-hover);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.email {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 20;
+  width: 260px;
+  padding: 16px;
+  border: 1px solid var(--node-hover);
+  border-radius: 20px;
+  background: var(--surface);
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+.signedIn {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.signedIn strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.note {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.signOut {
+  width: 100%;
+  height: 36px;
+  margin-top: 14px;
+  border: 1px solid var(--node-hover);
+  border-radius: var(--radius-pill);
+  background: var(--node);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.signOut:hover {
+  background: var(--node-hover);
+}
+
+@media (max-width: 640px) {
+  .email {
+    display: none;
+  }
+}

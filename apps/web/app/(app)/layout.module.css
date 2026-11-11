@@ -1,0 +1,48 @@
+.frame {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas:
+    'top top'
+    'nav content';
+  gap: 12px;
+  height: 100vh;
+  height: 100dvh;
+  padding: 12px;
+}
+
+.top {
+  grid-area: top;
+}
+
+.nav {
+  grid-area: nav;
+  min-height: 0;
+}
+
+/* Pages scroll inside the content area; full-height pages (editor, run view)
+   size themselves to it. */
+.content {
+  grid-area: content;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px 8px 24px;
+}
+
+@media (max-width: 820px) {
+  .frame {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas:
+      'top'
+      'nav'
+      'content';
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .content {
+    padding: 8px 4px 24px;
+  }
+}

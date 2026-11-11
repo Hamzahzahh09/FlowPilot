@@ -2,7 +2,7 @@
 
 After every task: `tsc --noEmit` in `apps/web`, root `pnpm lint`, fix, commit.
 
-- [ ] 1. Route map, shared layout, auth guard
+- [x] 1. Route map, shared layout, auth guard
   - Data layer types, `DataSource`, mock source with seed, hooks.
   - Demo auth module, `middleware.ts`, `(app)` layout with AppTopBar,
     SideNav, UserMenu, PageHeader.
