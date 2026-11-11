@@ -2,7 +2,7 @@
 
 After every task: `tsc --noEmit` in `apps/web`, root `pnpm lint`, fix, commit.
 
-- [ ] 1. Routes and layout
+- [x] 1. Routes and layout
   - Move the editor to `/editor`; editor logo links to `/`.
   - `/` renders a landing skeleton: header, main, footer, 1120px container.
   - Add `lib/site.ts` and `ButtonLink`.

@@ -1,5 +1,7 @@
+import Link from 'next/link'
 import { LogoIcon, PlayIcon, ResetIcon } from '@/components/icons'
 import { Button } from '@/components/ui/Button'
+import { ROUTES } from '@/lib/site'
 import { TabPills, type TabItem } from './TabPills'
 import styles from './TopBar.module.css'
 
@@ -23,12 +25,12 @@ export function TopBar({
 }: TopBarProps) {
   return (
     <header className={styles.bar}>
-      <div className={styles.brand}>
+      <Link href={ROUTES.home} className={styles.brand} aria-label="FlowPilot home">
         <span className={styles.logo}>
           <LogoIcon size={20} />
         </span>
         <span className={styles.brandName}>FlowPilot</span>
-      </div>
+      </Link>
 
       <div className={styles.workflow}>
         <h1 className={styles.name}>{workflowName}</h1>
