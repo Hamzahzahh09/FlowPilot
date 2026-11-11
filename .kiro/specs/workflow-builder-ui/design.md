@@ -57,8 +57,11 @@ lib/run/                (task 6) typed run store + mock runner
 ```ts
 type NodeKind = 'spark' | 'brain' | 'scalpel' | 'heart' | 'lever' | 'autopsy'
 type NodeStatus = 'idle' | 'running' | 'ok' | 'fail' | 'wait'
-interface FlowNodeData { kind: NodeKind; title: string; operation: string; status: NodeStatus }
+interface FlowNodeData { kind: NodeKind; title: string; themeName: string; operation: string; status: NodeStatus }
 ```
+Label line 1 is `title` (plain English, e.g. "AI code review"); line 2 is
+`themeName · operation` in `--muted` (e.g. "Brain · analyze diff").
+Spark has no input handle; Autopsy has no output handle.
 `STATUS_LABEL` maps status to Idle, Running, Passed, Failed, Waiting.
 
 FlowNode renders the 80x80 box as the measured node; the label is absolutely

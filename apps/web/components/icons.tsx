@@ -51,3 +51,65 @@ export function ResetIcon(props: IconProps) {
     </Svg>
   )
 }
+
+/* Node icons */
+
+export function SparkIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M13 3 5.5 13.5H11L10 21l7.5-10.5H12z" />
+    </Svg>
+  )
+}
+
+export function BrainIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M12 5.5A3 3 0 0 0 6.5 7a3 3 0 0 0-2 4.6 3 3 0 0 0 1.2 4.8A3 3 0 0 0 12 18.5z" />
+      <path d="M12 5.5A3 3 0 0 1 17.5 7a3 3 0 0 1 2 4.6 3 3 0 0 1-1.2 4.8A3 3 0 0 1 12 18.5" />
+      <path d="M12 5.5v13" />
+      <path d="M8.5 10.5a2 2 0 0 0 2 1.5" />
+      <path d="M15.5 13.5a2 2 0 0 0-2-1.5" />
+    </Svg>
+  )
+}
+
+export function ScalpelIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M4 20l6.5-6.5" />
+      <path d="M10.5 13.5 18 6a2 2 0 0 1 2.5 2.5L13.5 16z" />
+    </Svg>
+  )
+}
+
+export function HeartIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M12 20s-7.5-4.5-7.5-10.2A4.2 4.2 0 0 1 12 7.3a4.2 4.2 0 0 1 7.5 2.5C19.5 15.5 12 20 12 20z" />
+      <path d="M7.5 12.5h2.5l1-2 2 4 1-2h2.5" />
+    </Svg>
+  )
+}
+
+export function LeverIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="5" y="15" width="14" height="5" rx="2.5" />
+      <path d="M12 15 15.5 6.5" />
+      <circle cx="16" cy="5" r="1.75" />
+    </Svg>
+  )
+}
+
+export function ReportIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="5" y="4" width="14" height="17" rx="3" />
+      <path d="M9.5 4V3h5v1" />
+      <path d="M9 10h6" />
+      <path d="M9 13.5h6" />
+      <path d="M9 17h3.5" />
+    </Svg>
+  )
+}
