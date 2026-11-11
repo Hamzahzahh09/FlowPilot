@@ -1,0 +1,80 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.reveal {
+  flex: none;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--node-hover);
+  border-radius: var(--radius-input);
+  background: var(--node);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.reveal:hover {
+  background: var(--node-hover);
+}
+
+.error {
+  color: var(--bad);
+  font-size: 13px;
+}
+
+.error:empty {
+  display: none;
+}
+
+.submit {
+  width: 100%;
+}
+
+.demo {
+  margin-top: 24px;
+  padding: 18px;
+  border: 1px solid var(--node-hover);
+  border-radius: var(--radius-node);
+  background: var(--node);
+}
+
+.demoTitle {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.demoText {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.creds {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.creds > div {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  gap: 8px;
+  font-size: 13px;
+}
+
+.creds dt {
+  color: var(--muted);
+}
+
+.creds dd {
+  font-family: var(--font-mono);
+  overflow-wrap: anywhere;
+}
+
+.useDemo {
+  width: 100%;
+  margin-top: 14px;
+}

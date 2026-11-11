@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import styles from './Button.module.css'
 
 export type ButtonVariant = 'primary' | 'secondary'
@@ -21,19 +21,14 @@ export function buttonClass(
     .join(' ')
 }
 
-export function Button({
-  variant = 'secondary',
-  size = 'md',
-  icon,
-  className,
-  children,
-  type = 'button',
-  ...rest
-}: ButtonProps) {
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  { variant = 'secondary', size = 'md', icon, className, children, type = 'button', ...rest },
+  ref,
+) {
   return (
-    <button type={type} className={buttonClass(variant, size, className)} {...rest}>
+    <button ref={ref} type={type} className={buttonClass(variant, size, className)} {...rest}>
       {icon}
       <span>{children}</span>
     </button>
   )
-}
+})
