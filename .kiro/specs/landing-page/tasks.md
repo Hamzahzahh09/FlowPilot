@@ -7,7 +7,7 @@ After every task: `tsc --noEmit` in `apps/web`, root `pnpm lint`, fix, commit.
   - `/` renders a landing skeleton: header, main, footer, 1120px container.
   - Add `lib/site.ts` and `ButtonLink`.
   - Requirements: Routes, R6.1, R6.3
-- [ ] 2. Top bar and hero
+- [x] 2. Top bar and hero
   - LandingHeader, Hero copy and buttons, HeroCanvas (read-only Canvas,
     `stitch-active` edges, reduced-motion stop).
   - Pause here for browser review.

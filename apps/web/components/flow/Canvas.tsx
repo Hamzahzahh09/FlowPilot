@@ -32,11 +32,14 @@ const FIT_VIEW_OPTIONS: FitViewOptions = { padding: 0.2, minZoom: 0.25, maxZoom:
 interface CanvasProps {
   initialNodes: FlowNodeType[]
   initialEdges: Edge[]
+  /** Static preview: no drag, select, focus, pan or zoom; page scroll passes through. */
+  readOnly?: boolean
 }
 
-export function Canvas({ initialNodes, initialEdges }: CanvasProps) {
+export function Canvas({ initialNodes, initialEdges, readOnly = false }: CanvasProps) {
   const [nodes, , onNodesChange] = useNodesState<FlowNodeType>(initialNodes)
   const [edges, , onEdgesChange] = useEdgesState<Edge>(initialEdges)
+  const interactive = !readOnly
 
   return (
     <ReactFlow<FlowNodeType, Edge>
@@ -47,6 +50,16 @@ export function Canvas({ initialNodes, initialEdges }: CanvasProps) {
       nodeTypes={NODE_TYPES}
       defaultEdgeOptions={DEFAULT_EDGE_OPTIONS}
       nodesConnectable={false}
+      nodesDraggable={interactive}
+      elementsSelectable={interactive}
+      nodesFocusable={interactive}
+      edgesFocusable={interactive}
+      panOnDrag={interactive}
+      panOnScroll={false}
+      zoomOnScroll={interactive}
+      zoomOnPinch={interactive}
+      zoomOnDoubleClick={interactive}
+      preventScrolling={interactive}
       fitView
       fitViewOptions={FIT_VIEW_OPTIONS}
       minZoom={0.25}

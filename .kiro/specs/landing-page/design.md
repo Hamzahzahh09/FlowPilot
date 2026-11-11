@@ -32,7 +32,10 @@ component, because React Flow needs the browser.
 `nodesConnectable`, `elementsSelectable`, `nodesFocusable`, `edgesFocusable`,
 `panOnDrag`, `panOnScroll`, `zoomOnScroll`, `zoomOnPinch`,
 `zoomOnDoubleClick` and `preventScrolling` to false, so page scrolling over
-the card still works. `FitOnResize` keeps all nodes centered at any width.
+the card still works. The hero also sets `focusable`, `selectable`,
+`draggable` and `connectable` to false on each node and edge, because the
+server render uses React Flow's defaults and would otherwise ship tab stops.
+`FitOnResize` keeps all nodes centered at any width.
 The card wrapper has `role="img"` and an `aria-label` that lists the
 workflow steps, so screen readers get one description and no tab stops.
 

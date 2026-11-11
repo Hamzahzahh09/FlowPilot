@@ -147,6 +147,22 @@ samp {
   outline: none;
 }
 
+/* Active ("running") stitch: accent, dashed 6/8, dash moves one period per cycle. */
+.react-flow__edge.stitch-active .react-flow__edge-path {
+  stroke: var(--accent);
+  stroke-dasharray: 6 8;
+  animation: stitch-flow 0.9s linear infinite;
+}
+
+@keyframes stitch-flow {
+  from {
+    stroke-dashoffset: 14;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /* Motion                                                              */
 /* ------------------------------------------------------------------ */
@@ -159,5 +175,10 @@ samp {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* Dashes stay visible but do not move. */
+  .react-flow__edge.stitch-active .react-flow__edge-path {
+    animation: none !important;
   }
 }

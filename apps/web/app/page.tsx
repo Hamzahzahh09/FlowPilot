@@ -1,11 +1,17 @@
+import { Hero } from '@/components/landing/Hero'
+import { LandingHeader } from '@/components/landing/LandingHeader'
 import styles from '@/components/landing/Landing.module.css'
 
-// Landing page. Sections are filled in by landing-page tasks 2-4.
 export default function Home() {
   return (
     <div className={styles.page}>
-      <header className={styles.container}>{/* LandingHeader (task 2) */}</header>
-      <main className={styles.container}>{/* Hero, HowItWorks, ThreeParts */}</main>
+      <header className={styles.container}>
+        <LandingHeader />
+      </header>
+      <main className={styles.container}>
+        <Hero />
+        {/* HowItWorks (task 3), ThreeParts (task 4) */}
+      </main>
       <footer className={styles.container}>{/* LandingFooter (task 4) */}</footer>
     </div>
   )
