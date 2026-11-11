@@ -9,7 +9,7 @@ After every task: `tsc --noEmit` in `apps/web`, root `pnpm lint`, fix, commit.
   - Requirements: R10, R11, R12, R13
 - [x] 2. `/login`
   - Requirements: R2
-- [ ] 3. `/workflows`
+- [x] 3. `/workflows`
   - Cards, Simulate push (run start stub until task 5), New workflow,
     empty state. Pause for browser review.
   - Requirements: R3

@@ -1,0 +1,25 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: 12px;
+  list-style: none;
+}
+
+.grid > li {
+  display: flex;
+}
+
+.loading {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.error {
+  margin-bottom: 16px;
+  color: var(--bad);
+  font-size: 14px;
+}
+
+.error:empty {
+  display: none;
+}
