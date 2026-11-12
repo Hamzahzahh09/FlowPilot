@@ -11,10 +11,10 @@ After every task: `tsc --noEmit` in `apps/web`, root `pnpm lint`, fix, commit.
 - [x] 3. Pending buttons
   - Spinner, Button pending props, the five actions.
   - Requirements: R3, R6
-- [ ] 4. Login status and production login fix
-  - Requirements: R4
-- [ ] 5. Slow and failed waits
-  - useSlow, SlowNotice, retry in useQuery and useAction, slow navigation.
+- [x] 4. Slow and failed waits
+  - useSlow, WaitNotice, retry in useQuery and useAction, slow navigation.
   - Requirements: R5, R6
+- [ ] 5. Login status and production login fix
+  - Requirements: R4
 - [ ] 6. Measure and fix production speed
   - Requirements: R7

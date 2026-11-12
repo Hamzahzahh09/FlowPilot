@@ -5,6 +5,7 @@ import { PlusIcon, WorkflowsIcon } from '@/components/icons'
 import { WorkflowsSkeleton } from '@/components/skeletons/PageSkeletons'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { WaitNotice } from '@/components/ui/WaitNotice'
 import { data } from '@/lib/data'
 import { useAction, useQuery } from '@/lib/data/hooks'
 import { useNavigate } from '@/lib/navigation'
@@ -15,23 +16,20 @@ export function WorkflowList() {
   const navigate = useNavigate()
   const list = useQuery('workflows', () => data.workflows.list())
 
-  const create = useAction(
-    async () => {
-      const workflow = await data.workflows.create()
-      navigate.push(`/workflows/${workflow.id}`)
-    },
-    { holdOnSuccess: true },
-  )
+  const create = useAction(() => data.workflows.create(), {
+    holdOnSuccess: true,
+    onSuccess: (workflow) => navigate.push(`/workflows/${workflow.id}`),
+  })
 
-  const simulate = useAction(
-    async (workflowId: string) => {
-      const run = await data.runs.start(workflowId)
-      navigate.push(`/runs/${run.id}`)
-    },
-    { holdOnSuccess: true },
-  )
+  const simulate = useAction((workflowId: string) => data.runs.start(workflowId), {
+    holdOnSuccess: true,
+    onSuccess: (run) => navigate.push(`/runs/${run.id}`),
+  })
   const busy = create.pending || simulate.pending
   const simulatingId = simulate.pendingArgs?.[0] ?? null
+  // One notice for whichever action ran last.
+  const action = create.pending || create.error ? create : simulate
+  const actionName = action === create ? 'create the workflow' : 'start the run'
 
   const newButton = (
     <Button
@@ -54,14 +52,19 @@ export function WorkflowList() {
         actions={newButton}
       />
 
-      <div role="alert" className={styles.error}>
-        {create.error || simulate.error}
-      </div>
+      <WaitNotice
+        pendingText={create.pending ? 'Creating workflow…' : simulate.pending ? 'Starting run…' : null}
+        slow={action.slow}
+        error={action.error && `Could not ${actionName}: ${action.error}`}
+        onRetry={action.retry}
+      />
 
-      {list.status === 'loading' && <WorkflowsSkeleton header={false} />}
+      {list.status === 'loading' && (
+        <WorkflowsSkeleton header={false} notice={<WaitNotice slow={list.slow} onRetry={list.retry} />} />
+      )}
 
       {list.status === 'error' && (
-        <p className={styles.error}>Could not load workflows: {list.error}</p>
+        <WaitNotice error={`Could not load workflows: ${list.error}`} onRetry={list.retry} />
       )}
 
       {list.status === 'ready' && list.data.length === 0 && (

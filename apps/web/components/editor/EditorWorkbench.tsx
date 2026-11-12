@@ -21,7 +21,9 @@ import { DEFAULT_EDGE_OPTIONS, FIT_VIEW_OPTIONS, NODE_TYPES, PRO_OPTIONS } from 
 import { FitOnResize } from '@/components/flow/FitOnResize'
 import { PlayIcon } from '@/components/icons'
 import { Button } from '@/components/ui/Button'
+import { WaitNotice } from '@/components/ui/WaitNotice'
 import { data, type Workflow } from '@/lib/data'
+import { useAction } from '@/lib/data/hooks'
 import { newId } from '@/lib/data/ids'
 import { useNavigate } from '@/lib/navigation'
 import {
@@ -54,9 +56,7 @@ export function EditorWorkbench({ workflow }: { workflow: Workflow }) {
   const [edges, setEdges, applyEdgeChanges] = useEdgesState<Edge>(initial.edges)
   const [name, setName] = useState(workflow.name)
   const [dirty, setDirty] = useState(false)
-  const [busy, setBusy] = useState<'saving' | 'starting' | null>(null)
   const [showErrors, setShowErrors] = useState(false)
-  const [saveError, setSaveError] = useState<string | null>(null)
   const [message, setMessage] = useState('')
 
   const selectedNode = nodes.find((n) => n.selected) ?? null
@@ -183,53 +183,50 @@ export function EditorWorkbench({ workflow }: { workflow: Workflow }) {
     setDirty(true)
   }
 
-  /** Validates, then stores. Returns true when the workflow is saved and valid. */
+  /**
+   * Validates, then stores. False when validation fails (the error list
+   * shows why); throws when the request fails.
+   */
   const persist = async (): Promise<boolean> => {
-    setSaveError(null)
     if (validate().length > 0) {
       setShowErrors(true)
       setMessage('')
       return false
     }
-    try {
-      await data.workflows.save(workflow.id, { name, graph: toGraph(nodes, edges) })
-      setDirty(false)
-      setShowErrors(false)
-      setMessage('Saved')
-      return true
-    } catch (error) {
-      setSaveError(error instanceof Error ? error.message : String(error))
-      return false
-    }
+    await data.workflows.save(workflow.id, { name, graph: toGraph(nodes, edges) })
+    setDirty(false)
+    setShowErrors(false)
+    setMessage('Saved')
+    return true
   }
 
-  const save = async () => {
-    setBusy('saving')
-    try {
-      await persist()
-    } finally {
-      setBusy(null)
-    }
-  }
+  const saveAction = useAction(persist)
 
-  // Saves first when needed. Stays busy on success: the run page replaces
+  // Saves first when needed. Stays pending on success: the run page replaces
   // this one, so the button keeps "Starting run…" until then.
-  const simulate = async () => {
-    setBusy('starting')
-    const ready = dirty ? await persist() : validate().length === 0
-    if (!ready) {
-      setShowErrors(true)
-      setBusy(null)
-      return
-    }
-    try {
-      const run = await data.runs.start(workflow.id)
-      navigate.push(`/runs/${run.id}`)
-    } catch (error) {
-      setSaveError(error instanceof Error ? error.message : String(error))
-      setBusy(null)
-    }
-  }
+  const simulateAction = useAction(
+    async () => {
+      const ready = dirty ? await persist() : validate().length === 0
+      if (!ready) {
+        setShowErrors(true)
+        return null
+      }
+      return data.runs.start(workflow.id)
+    },
+    {
+      holdOnSuccess: (run) => run !== null,
+      onSuccess: (run) => {
+        if (run) navigate.push(`/runs/${run.id}`)
+      },
+    },
+  )
+
+  const save = () => void saveAction.run()
+  const simulate = () => void simulateAction.run()
+  const busy = saveAction.pending ? 'saving' : simulateAction.pending ? 'starting' : null
+  const action = simulateAction.pending || simulateAction.error ? simulateAction : saveAction
+  const actionError =
+    action.error && `Could not ${action === saveAction ? 'save' : 'start the run'}: ${action.error}`
 
   const hasSpark = nodes.some((n) => n.data.type === 'Spark')
   const saveState = busy === 'saving' ? 'Saving…' : dirty ? 'Unsaved changes' : 'All changes saved'
@@ -253,7 +250,7 @@ export function EditorWorkbench({ workflow }: { workflow: Workflow }) {
               {saveState}
             </span>
             <Button
-              onClick={() => void save()}
+              onClick={save}
               disabled={busy !== null}
               pending={busy === 'saving'}
               pendingLabel="Saving…"
@@ -263,7 +260,7 @@ export function EditorWorkbench({ workflow }: { workflow: Workflow }) {
             <Button
               variant="primary"
               icon={<PlayIcon />}
-              onClick={() => void simulate()}
+              onClick={simulate}
               disabled={busy !== null}
               pending={busy === 'starting'}
               pendingLabel="Starting run…"
@@ -278,12 +275,18 @@ export function EditorWorkbench({ workflow }: { workflow: Workflow }) {
         {message}
       </p>
 
+      <WaitNotice
+        pendingText={busy === 'saving' ? 'Saving…' : busy === 'starting' ? 'Starting run…' : null}
+        slow={action.slow}
+        error={actionError}
+        onRetry={action.retry}
+      />
+
       <div role="alert" className={styles.errors}>
-        {(errors.length > 0 || saveError) && (
+        {errors.length > 0 && (
           <>
             <h2 className={styles.errorsTitle}>Fix these before saving</h2>
             <ul className={styles.errorList}>
-              {saveError && <li>{saveError}</li>}
               {errors.map((error) => (
                 <li key={error}>{error}</li>
               ))}

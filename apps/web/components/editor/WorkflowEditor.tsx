@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/app/PageHeader'
 import { useSetTopBarDetail } from '@/components/app/TopBarContext'
 import { EditorSkeleton } from '@/components/skeletons/PageSkeletons'
 import { ButtonLink } from '@/components/ui/ButtonLink'
+import { WaitNotice } from '@/components/ui/WaitNotice'
 import { data } from '@/lib/data'
 import { useQuery } from '@/lib/data/hooks'
 import { EditorWorkbench } from './EditorWorkbench'
@@ -14,18 +15,26 @@ export function WorkflowEditor({ id }: { id: string }) {
   useSetTopBarDetail(query.status === 'ready' && query.data ? query.data.name : null)
 
   if (query.status === 'loading') {
-    return <EditorSkeleton />
+    return <EditorSkeleton notice={<WaitNotice slow={query.slow} onRetry={query.retry} />} />
   }
 
-  if (query.status === 'error' || !query.data) {
+  if (query.status === 'error') {
+    return (
+      <>
+        <PageHeader
+          title="Could not load the workflow"
+          actions={<ButtonLink href="/workflows">Back to workflows</ButtonLink>}
+        />
+        <WaitNotice error={query.error} onRetry={query.retry} />
+      </>
+    )
+  }
+
+  if (!query.data) {
     return (
       <PageHeader
         title="Workflow not found"
-        description={
-          query.status === 'error'
-            ? `Could not load it: ${query.error}`
-            : 'It may have been deleted, or the link is incomplete.'
-        }
+        description="It may have been deleted, or the link is incomplete."
         actions={<ButtonLink href="/workflows">Back to workflows</ButtonLink>}
       />
     )

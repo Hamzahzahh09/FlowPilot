@@ -41,7 +41,7 @@ render client components that load through `/api`.
 components/ui/Skeleton.tsx       <Skeleton/> block + <SkeletonPage label> wrapper
 components/ui/Spinner.tsx        14px ring; static dot under reduced motion
 components/ui/Button.tsx         + pending, pendingLabel (aria-busy, spinner)
-components/ui/SlowNotice.tsx     slow/error message with Retry (role=status / alert)
+components/ui/WaitNotice.tsx     pending (sr-only), slow and error message with Retry
 components/app/NavigationProgress.tsx   bar + sr-only status + slow notice
 lib/navigation.ts                start/done store, useNavigate()
 lib/useSlow.ts                   true after 8 s while active
@@ -59,8 +59,8 @@ components/skeletons/*.tsx       WorkflowsSkeleton, EditorSkeleton, RunSkeleton,
 - Bar: fixed, 3px, `--accent`, `transform: scaleX()`. Starts at 0.1, eases
   to 0.8 over a few seconds, jumps to 1 and fades on done. No gradient, no
   glow. Reduced motion: no transition, fixed at 0.8 until done.
-- Slow (8 s): notice under the top bar; Retry does a full load of the
-  target URL.
+- Slow (8 s): WaitNotice floating under the top edge; Retry does a full
+  load of the target URL.
 
 ### Pending and slow in hooks
 - `useQuery` adds `retry()`. Skeleton while loading; after 8 s the
@@ -76,7 +76,7 @@ Credentials are checked in the browser. On submit: "Signing in as demo…",
 set the cookie, then "Loading your workspace…" and a full navigation
 (`window.location.assign`). The full load fixes cause 1 and swaps the
 landing shell for the app shell anyway. The status line stays until the
-new page replaces it; after 8 s SlowNotice offers Retry.
+new page replaces it; after 8 s WaitNotice offers Retry.
 
 ### Speed fixes
 - `prepare: true` in `db/client.ts`.

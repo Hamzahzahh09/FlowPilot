@@ -43,3 +43,17 @@
     transition: none;
   }
 }
+
+/* Slow navigation notice, floating under the top edge. Empty most of the time. */
+.notice {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  z-index: 1000;
+  width: min(560px, calc(100% - 24px));
+  transform: translateX(-50%);
+}
+
+.notice .noticeBox {
+  margin-bottom: 0;
+}

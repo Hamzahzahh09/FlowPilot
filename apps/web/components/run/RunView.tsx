@@ -6,6 +6,7 @@ import { LogPanel } from '@/components/shell/LogPanel'
 import { RunSkeleton } from '@/components/skeletons/PageSkeletons'
 import { ButtonLink } from '@/components/ui/ButtonLink'
 import { StatusBadge } from '@/components/ui/StatusBadge'
+import { WaitNotice } from '@/components/ui/WaitNotice'
 import { data, type RunDecision } from '@/lib/data'
 import { useAction, useQuery } from '@/lib/data/hooks'
 import { isFinished } from '@/lib/data/runStatus'
@@ -23,25 +24,32 @@ export function RunLiveView({ id }: { id: string }) {
   const view = useRunView(run)
   useSetTopBarDetail(run ? run.workflowName : null)
 
-  const decide = useAction(async (decision: RunDecision) => {
-    await data.runs.decide(id, decision)
+  const decide = useAction((decision: RunDecision) => data.runs.decide(id, decision), {
     // The bar disappears; keep keyboard focus in the log instead of losing it.
-    document.getElementById('log-heading')?.focus()
+    onSuccess: () => document.getElementById('log-heading')?.focus(),
   })
 
   if (query.status === 'loading') {
-    return <RunSkeleton />
+    return <RunSkeleton notice={<WaitNotice slow={query.slow} onRetry={query.retry} />} />
+  }
+
+  if (query.status === 'error') {
+    return (
+      <>
+        <PageHeader
+          title="Could not load the run"
+          actions={<ButtonLink href="/workflows">Back to workflows</ButtonLink>}
+        />
+        <WaitNotice error={query.error} onRetry={query.retry} />
+      </>
+    )
   }
 
   if (!run || !view) {
     return (
       <PageHeader
         title="Run not found"
-        description={
-          query.status === 'error'
-            ? `Could not load it: ${query.error}`
-            : 'It may have been deleted, or the link is incomplete. Start a new one from your workflows.'
-        }
+        description="It may have been deleted, or the link is incomplete. Start a new one from your workflows."
         actions={<ButtonLink href="/workflows">Back to workflows</ButtonLink>}
       />
     )
@@ -97,11 +105,14 @@ export function RunLiveView({ id }: { id: string }) {
               ) : null
             }
           >
-            {decide.error && (
-              <p role="alert" className={styles.error}>
-                {decide.error}
-              </p>
-            )}
+            <WaitNotice
+              pendingText={
+                decide.pendingArgs ? (decide.pendingArgs[0] === 'approved' ? 'Approving…' : 'Rejecting…') : null
+              }
+              slow={decide.slow}
+              error={decide.error && `Could not send your decision: ${decide.error}`}
+              onRetry={decide.retry}
+            />
             <LogLines lines={view.log} />
           </LogPanel>
         </div>

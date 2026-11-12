@@ -1,0 +1,46 @@
+.box {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-bottom: 16px;
+  padding: 12px 12px 12px 18px;
+  background: var(--surface);
+  border: 1px solid var(--node-hover);
+  border-radius: var(--radius-node);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Status colors as a thin ring (design.md), plus the text says what it is. */
+.slow {
+  border-color: transparent;
+  box-shadow: 0 0 0 var(--ring) var(--wait);
+}
+
+.error {
+  border-color: transparent;
+  box-shadow: 0 0 0 var(--ring) var(--bad);
+}
+
+.text {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.label {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+
+.slow .label {
+  color: var(--wait);
+}
+
+.error .label {
+  color: var(--bad);
+}

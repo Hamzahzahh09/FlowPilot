@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { CopyButton } from '@/components/ui/CopyButton'
 import { Badge } from '@/components/ui/StatusBadge'
 import { TextField } from '@/components/ui/TextField'
+import { WaitNotice } from '@/components/ui/WaitNotice'
 import { data } from '@/lib/data'
 import { useAction, useQuery } from '@/lib/data/hooks'
 import { absoluteTime, relativeTime } from '@/lib/format'
@@ -35,10 +36,11 @@ export function RunnersPage() {
   const list = useQuery('runners', () => data.runners.list())
   const [name, setName] = useState('')
   const [created, setCreated] = useState<{ name: string; token: string } | null>(null)
-  const create = useAction(async (runnerName: string) => {
-    const result = await data.runners.createToken(runnerName)
-    setCreated({ name: result.runner.name, token: result.token })
-    setName('')
+  const create = useAction((runnerName: string) => data.runners.createToken(runnerName), {
+    onSuccess: (result) => {
+      setCreated({ name: result.runner.name, token: result.token })
+      setName('')
+    },
   })
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -63,7 +65,10 @@ export function RunnersPage() {
               Loading runners…
             </p>
           )}
-          {list.status === 'error' && <p className={styles.error}>Could not load runners: {list.error}</p>}
+          {list.status === 'loading' && <WaitNotice slow={list.slow} onRetry={list.retry} />}
+          {list.status === 'error' && (
+            <WaitNotice error={`Could not load runners: ${list.error}`} onRetry={list.retry} />
+          )}
           {list.status === 'ready' && (
             <ul className={styles.list}>
               {list.data.map((runner) => (

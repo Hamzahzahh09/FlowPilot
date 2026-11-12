@@ -6,6 +6,7 @@ import { RunsIcon } from '@/components/icons'
 import { ReportSkeleton } from '@/components/skeletons/PageSkeletons'
 import { ButtonLink } from '@/components/ui/ButtonLink'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { WaitNotice } from '@/components/ui/WaitNotice'
 import { data } from '@/lib/data'
 import { useQuery } from '@/lib/data/hooks'
 import { isFinished } from '@/lib/data/runStatus'
@@ -19,18 +20,26 @@ export function ReportView({ id }: { id: string }) {
   useSetTopBarDetail(run ? `${run.workflowName} report` : null)
 
   if (query.status === 'loading') {
-    return <ReportSkeleton />
+    return <ReportSkeleton notice={<WaitNotice slow={query.slow} onRetry={query.retry} />} />
+  }
+
+  if (query.status === 'error') {
+    return (
+      <>
+        <PageHeader
+          title="Could not load the report"
+          actions={<ButtonLink href="/workflows">Back to workflows</ButtonLink>}
+        />
+        <WaitNotice error={query.error} onRetry={query.retry} />
+      </>
+    )
   }
 
   if (!run || !view) {
     return (
       <PageHeader
         title="Report not found"
-        description={
-          query.status === 'error'
-            ? `Could not load it: ${query.error}`
-            : 'The run may have been deleted, or the link is incomplete.'
-        }
+        description="The run may have been deleted, or the link is incomplete."
         actions={<ButtonLink href="/workflows">Back to workflows</ButtonLink>}
       />
     )

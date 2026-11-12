@@ -7,6 +7,7 @@ import { CopyButton } from '@/components/ui/CopyButton'
 import { Badge } from '@/components/ui/StatusBadge'
 import { Switch } from '@/components/ui/Switch'
 import { TextField } from '@/components/ui/TextField'
+import { WaitNotice } from '@/components/ui/WaitNotice'
 import { data, type GithubSettings } from '@/lib/data'
 import { useAction, useQuery } from '@/lib/data/hooks'
 import { absoluteTime } from '@/lib/format'
@@ -30,7 +31,10 @@ export function GithubSettingsPage() {
           Loading settings…
         </p>
       )}
-      {query.status === 'error' && <p className={styles.error}>Could not load settings: {query.error}</p>}
+      {query.status === 'loading' && <WaitNotice slow={query.slow} onRetry={query.retry} />}
+      {query.status === 'error' && (
+        <WaitNotice error={`Could not load settings: ${query.error}`} onRetry={query.retry} />
+      )}
       {query.status === 'ready' && <GithubForm settings={query.data} />}
     </>
   )

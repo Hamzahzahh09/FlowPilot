@@ -2,7 +2,9 @@
 
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
+import { WaitNotice } from '@/components/ui/WaitNotice'
 import { finishNavigation, isNewLocation, startNavigation, useNavigationState } from '@/lib/navigation'
+import { useSlow } from '@/lib/useSlow'
 import styles from './NavigationProgress.module.css'
 
 const FADE_MS = 400
@@ -26,11 +28,12 @@ function onDocumentClick(event: MouseEvent) {
  * inside <Suspense> (useSearchParams).
  */
 export function NavigationProgress() {
-  const { active } = useNavigationState()
+  const { active, href, startedAt } = useNavigationState()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [fading, setFading] = useState(false)
   const wasActive = useRef(false)
+  const slow = useSlow(active, startedAt)
 
   // Capture phase: runs before Link's own click handler.
   useEffect(() => {
@@ -61,9 +64,15 @@ export function NavigationProgress() {
       {(active || fading) && (
         <div aria-hidden="true" className={`${styles.bar} ${active ? styles.loading : styles.done}`} />
       )}
-      <p role="status" aria-live="polite" className="sr-only">
-        {active ? 'Loading page…' : ''}
-      </p>
+      <div className={styles.notice}>
+        {/* Retry: a full load of the target, in case the client navigation is stuck. */}
+        <WaitNotice
+          pendingText={active ? 'Loading page…' : null}
+          slow={slow}
+          onRetry={href ? () => window.location.assign(href) : undefined}
+          className={styles.noticeBox}
+        />
+      </div>
     </>
   )
 }
