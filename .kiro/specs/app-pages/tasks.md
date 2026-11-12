@@ -27,7 +27,7 @@ After every task: `tsc --noEmit` in `apps/web`, root `pnpm lint`, fix, commit.
   - Requirements: R6
 - [x] 7. `/runners` and `/settings/github`
   - Requirements: R7, R8
-- [ ] 8. P2 placeholders `/runs`, `/templates`
+- [x] 8. P2 placeholders `/runs`, `/templates`
   - Requirements: R9
 - [ ] 9. Responsive and accessibility pass
   - Requirements: R15, R16
