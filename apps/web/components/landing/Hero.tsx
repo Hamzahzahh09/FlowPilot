@@ -17,10 +17,10 @@ export function Hero() {
           the final report.
         </p>
         <div className={styles.actions}>
-          <ButtonLink href={ROUTES.editor} variant="primary" size="lg" icon={<PlayIcon />}>
+          <ButtonLink href={ROUTES.demoWorkflow} variant="primary" size="lg" icon={<PlayIcon />}>
             Try the demo
           </ButtonLink>
-          <ButtonLink href={ROUTES.editor} size="lg">
+          <ButtonLink href={ROUTES.workflows} size="lg">
             Build from scratch
           </ButtonLink>
         </div>

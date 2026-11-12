@@ -15,13 +15,13 @@ export function LandingHeader() {
       </Link>
 
       <nav aria-label="Main" className={styles.nav}>
-        <Link href={ROUTES.editor} className={styles.link}>
+        <Link href={ROUTES.workflows} className={styles.link}>
           Editor
         </Link>
         <a href={REPO_URL} className={styles.link} target="_blank" rel="noopener noreferrer">
           GitHub
         </a>
-        <ButtonLink href={ROUTES.editor} variant="primary">
+        <ButtonLink href={ROUTES.demoWorkflow} variant="primary">
           Open the demo
         </ButtonLink>
       </nav>
