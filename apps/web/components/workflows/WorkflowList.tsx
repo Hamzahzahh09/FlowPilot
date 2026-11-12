@@ -15,19 +15,34 @@ export function WorkflowList() {
   const navigate = useNavigate()
   const list = useQuery('workflows', () => data.workflows.list())
 
-  const create = useAction(async () => {
-    const workflow = await data.workflows.create()
-    navigate.push(`/workflows/${workflow.id}`)
-  })
+  const create = useAction(
+    async () => {
+      const workflow = await data.workflows.create()
+      navigate.push(`/workflows/${workflow.id}`)
+    },
+    { holdOnSuccess: true },
+  )
 
-  const simulate = useAction(async (workflowId: string) => {
-    const run = await data.runs.start(workflowId)
-    navigate.push(`/runs/${run.id}`)
-  })
+  const simulate = useAction(
+    async (workflowId: string) => {
+      const run = await data.runs.start(workflowId)
+      navigate.push(`/runs/${run.id}`)
+    },
+    { holdOnSuccess: true },
+  )
+  const busy = create.pending || simulate.pending
+  const simulatingId = simulate.pendingArgs?.[0] ?? null
 
   const newButton = (
-    <Button variant="primary" icon={<PlusIcon />} onClick={() => void create.run()} disabled={create.pending}>
-      {create.pending ? 'Creating…' : 'New workflow'}
+    <Button
+      variant="primary"
+      icon={<PlusIcon />}
+      onClick={() => void create.run()}
+      disabled={busy}
+      pending={create.pending}
+      pendingLabel="Creating…"
+    >
+      New workflow
     </Button>
   )
 
@@ -67,7 +82,8 @@ export function WorkflowList() {
               <WorkflowCard
                 workflow={workflow}
                 onSimulate={() => void simulate.run(workflow.id)}
-                simulating={simulate.pending}
+                disabled={busy}
+                simulating={simulatingId === workflow.id}
               />
             </li>
           ))}

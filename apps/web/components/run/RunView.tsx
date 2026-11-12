@@ -90,7 +90,7 @@ export function RunLiveView({ id }: { id: string }) {
               view.status === 'awaiting_approval' && waitingNode ? (
                 <ApprovalBar
                   nodeTitle={nodeTitle(waitingNode)}
-                  pending={decide.pending}
+                  pending={decide.pendingArgs?.[0] ?? null}
                   onApprove={() => void decide.run('approved')}
                   onReject={() => void decide.run('rejected')}
                 />

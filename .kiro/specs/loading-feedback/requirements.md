@@ -23,7 +23,8 @@ transitions are fast in production. Next 14.2, no new dependencies, no
   pending the button is disabled, has `aria-busy="true"`, shows a small
   spinner and a pending label: "Signing in…", "Starting run…", "Saving…",
   "Approving…", "Rejecting…".
-- Approve and Reject keep equal size and weight while one is pending.
+- Approve and Reject keep equal size while one is pending. Both are disabled;
+  the one in flight stays at full opacity with its spinner.
 
 ## R4 Login status
 - After a valid submit a visible status line shows "Signing in as demo…",

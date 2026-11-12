@@ -50,3 +50,9 @@
   opacity: 0.55;
   cursor: not-allowed;
 }
+
+/* The button doing the work stays readable; only idle disabled ones dim. */
+.button[aria-busy='true'] {
+  opacity: 1;
+  cursor: progress;
+}

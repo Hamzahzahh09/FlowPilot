@@ -84,8 +84,16 @@ export function LoginForm({ next }: LoginFormProps) {
           {error}
         </div>
 
-        <Button ref={submitRef} type="submit" variant="primary" size="lg" disabled={pending} className={styles.submit}>
-          {pending ? 'Signing in…' : 'Sign in'}
+        <Button
+          ref={submitRef}
+          type="submit"
+          variant="primary"
+          size="lg"
+          pending={pending}
+          pendingLabel="Signing in…"
+          className={styles.submit}
+        >
+          Sign in
         </Button>
       </form>
 

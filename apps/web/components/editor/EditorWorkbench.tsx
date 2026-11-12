@@ -184,14 +184,13 @@ export function EditorWorkbench({ workflow }: { workflow: Workflow }) {
   }
 
   /** Validates, then stores. Returns true when the workflow is saved and valid. */
-  const save = async (): Promise<boolean> => {
+  const persist = async (): Promise<boolean> => {
     setSaveError(null)
     if (validate().length > 0) {
       setShowErrors(true)
       setMessage('')
       return false
     }
-    setBusy('saving')
     try {
       await data.workflows.save(workflow.id, { name, graph: toGraph(nodes, edges) })
       setDirty(false)
@@ -201,18 +200,28 @@ export function EditorWorkbench({ workflow }: { workflow: Workflow }) {
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : String(error))
       return false
+    }
+  }
+
+  const save = async () => {
+    setBusy('saving')
+    try {
+      await persist()
     } finally {
       setBusy(null)
     }
   }
 
+  // Saves first when needed. Stays busy on success: the run page replaces
+  // this one, so the button keeps "Starting run…" until then.
   const simulate = async () => {
-    const ready = dirty ? await save() : validate().length === 0
+    setBusy('starting')
+    const ready = dirty ? await persist() : validate().length === 0
     if (!ready) {
       setShowErrors(true)
+      setBusy(null)
       return
     }
-    setBusy('starting')
     try {
       const run = await data.runs.start(workflow.id)
       navigate.push(`/runs/${run.id}`)
@@ -243,11 +252,23 @@ export function EditorWorkbench({ workflow }: { workflow: Workflow }) {
             <span className={styles.saveState} data-dirty={dirty || undefined}>
               {saveState}
             </span>
-            <Button onClick={() => void save()} disabled={busy !== null}>
+            <Button
+              onClick={() => void save()}
+              disabled={busy !== null}
+              pending={busy === 'saving'}
+              pendingLabel="Saving…"
+            >
               Save
             </Button>
-            <Button variant="primary" icon={<PlayIcon />} onClick={() => void simulate()} disabled={busy !== null}>
-              {busy === 'starting' ? 'Starting…' : 'Simulate push'}
+            <Button
+              variant="primary"
+              icon={<PlayIcon />}
+              onClick={() => void simulate()}
+              disabled={busy !== null}
+              pending={busy === 'starting'}
+              pendingLabel="Starting run…"
+            >
+              Simulate push
             </Button>
           </>
         }

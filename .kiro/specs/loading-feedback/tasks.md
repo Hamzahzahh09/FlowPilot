@@ -8,7 +8,7 @@ After every task: `tsc --noEmit` in `apps/web`, root `pnpm lint`, fix, commit.
 - [x] 2. Top progress bar
   - lib/navigation.ts, NavigationProgress, useNavigate in every router.push.
   - Requirements: R2, R6
-- [ ] 3. Pending buttons
+- [x] 3. Pending buttons
   - Spinner, Button pending props, the five actions.
   - Requirements: R3, R6
 - [ ] 4. Login status and production login fix

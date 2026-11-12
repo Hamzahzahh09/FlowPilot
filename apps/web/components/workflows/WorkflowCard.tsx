@@ -9,10 +9,13 @@ import styles from './WorkflowCard.module.css'
 interface WorkflowCardProps {
   workflow: WorkflowSummary
   onSimulate: () => void
+  /** Another action is running on the page. */
+  disabled: boolean
+  /** This card's Simulate push is in flight. */
   simulating: boolean
 }
 
-export function WorkflowCard({ workflow, onSimulate, simulating }: WorkflowCardProps) {
+export function WorkflowCard({ workflow, onSimulate, disabled, simulating }: WorkflowCardProps) {
   const titleId = `wf-${workflow.id}`
   return (
     <article className={styles.card} aria-labelledby={titleId}>
@@ -50,7 +53,9 @@ export function WorkflowCard({ workflow, onSimulate, simulating }: WorkflowCardP
           variant="primary"
           icon={<PlayIcon />}
           onClick={onSimulate}
-          disabled={simulating || !workflow.trigger}
+          disabled={disabled || !workflow.trigger}
+          pending={simulating}
+          pendingLabel="Starting run…"
           aria-describedby={titleId}
         >
           Simulate push

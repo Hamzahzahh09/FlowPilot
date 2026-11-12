@@ -38,25 +38,42 @@ export function useQuery<T>(key: string, load: () => Promise<T>): QueryState<T> 
   return state
 }
 
+export type ActionOptions = {
+  /**
+   * The action ends by navigating away: stay pending after success, so the
+   * button keeps its spinner until the next page replaces it.
+   */
+  holdOnSuccess?: boolean
+}
+
 /** Wraps an async action with pending and error state. */
-export function useAction<A extends unknown[], R>(action: (...args: A) => Promise<R>) {
-  const [pending, setPending] = useState(false)
+export function useAction<A extends unknown[], R>(
+  action: (...args: A) => Promise<R>,
+  options: ActionOptions = {},
+) {
+  const [pendingArgs, setPendingArgs] = useState<A | null>(null)
   const [error, setError] = useState<string | null>(null)
   const actionRef = useRef(action)
   actionRef.current = action
+  const hold = options.holdOnSuccess ?? false
 
-  const run = useCallback(async (...args: A): Promise<R | undefined> => {
-    setPending(true)
-    setError(null)
-    try {
-      return await actionRef.current(...args)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err))
-      return undefined
-    } finally {
-      setPending(false)
-    }
-  }, [])
+  const run = useCallback(
+    async (...args: A): Promise<R | undefined> => {
+      setPendingArgs(args)
+      setError(null)
+      try {
+        const result = await actionRef.current(...args)
+        if (!hold) setPendingArgs(null)
+        return result
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err))
+        setPendingArgs(null)
+        return undefined
+      }
+    },
+    [hold],
+  )
 
-  return { run, pending, error }
+  /** `pendingArgs` tells which call is in flight, for example which card. */
+  return { run, pending: pendingArgs !== null, pendingArgs, error }
 }
