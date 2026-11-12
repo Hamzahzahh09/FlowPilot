@@ -1,6 +1,6 @@
 import type { Node } from '@xyflow/react'
 
-export const NODE_KINDS = ['spark', 'brain', 'scalpel', 'heart', 'lever', 'autopsy'] as const
+export const NODE_KINDS = ['spark', 'brain', 'scalpel', 'heart', 'fork', 'lever', 'autopsy'] as const
 export type NodeKind = (typeof NODE_KINDS)[number]
 
 export const NODE_STATUSES = ['idle', 'running', 'ok', 'fail', 'wait'] as const
@@ -35,6 +35,7 @@ export const HAS_INPUT: Record<NodeKind, boolean> = {
   brain: true,
   scalpel: true,
   heart: true,
+  fork: true,
   lever: true,
   autopsy: true,
 }
@@ -44,6 +45,7 @@ export const HAS_OUTPUT: Record<NodeKind, boolean> = {
   brain: true,
   scalpel: true,
   heart: true,
+  fork: true,
   lever: true,
   autopsy: false,
 }

@@ -1,39 +1,21 @@
 'use client'
 
-import { memo, type ComponentType } from 'react'
+import { memo } from 'react'
 import { Handle, Position, type NodeProps } from '@xyflow/react'
-import {
-  BrainIcon,
-  HeartIcon,
-  LeverIcon,
-  ReportIcon,
-  ScalpelIcon,
-  SparkIcon,
-  type IconProps,
-} from '@/components/icons'
 import {
   HAS_INPUT,
   HAS_OUTPUT,
   STATUS_LABEL,
   nodeSubtitle,
   type FlowNodeType,
-  type NodeKind,
 } from '@/lib/workflow/types'
+import { NODE_ICONS } from './nodeIcons'
 import styles from './FlowNode.module.css'
 
-const ICONS: Record<NodeKind, ComponentType<IconProps>> = {
-  spark: SparkIcon,
-  brain: BrainIcon,
-  scalpel: ScalpelIcon,
-  heart: HeartIcon,
-  lever: LeverIcon,
-  autopsy: ReportIcon,
-}
-
 // 80x80 box with only an icon; label sits below the box (outside the measured
-// node) so handles stay centered on the box.
+// node) so handles stay centered on the box. Fork has two outputs.
 function FlowNodeComponent({ data, selected }: NodeProps<FlowNodeType>) {
-  const Icon = ICONS[data.kind]
+  const Icon = NODE_ICONS[data.kind]
   const statusLabel = STATUS_LABEL[data.status]
 
   return (
@@ -46,8 +28,33 @@ function FlowNodeComponent({ data, selected }: NodeProps<FlowNodeType>) {
         <Icon size={30} />
       </div>
 
-      {HAS_OUTPUT[data.kind] && (
-        <Handle type="source" position={Position.Right} className={styles.handle} />
+      {data.kind === 'fork' ? (
+        <>
+          <Handle
+            type="source"
+            id="passed"
+            position={Position.Right}
+            className={styles.handle}
+            style={{ top: '30%' }}
+          />
+          <Handle
+            type="source"
+            id="failed"
+            position={Position.Right}
+            className={styles.handle}
+            style={{ top: '70%' }}
+          />
+          <span className={`${styles.branch} ${styles.branchPassed}`} aria-hidden="true">
+            Passed
+          </span>
+          <span className={`${styles.branch} ${styles.branchFailed}`} aria-hidden="true">
+            Failed
+          </span>
+        </>
+      ) : (
+        HAS_OUTPUT[data.kind] && (
+          <Handle type="source" position={Position.Right} className={styles.handle} />
+        )
       )}
 
       <div className={styles.label}>

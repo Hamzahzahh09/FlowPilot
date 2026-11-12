@@ -31,7 +31,7 @@ const DESCRIPTION =
 export function HeroCanvas() {
   return (
     <div className={styles.canvasCard} role="img" aria-label={DESCRIPTION}>
-      <Canvas initialNodes={HERO_NODES} initialEdges={HERO_EDGES} readOnly />
+      <Canvas nodes={HERO_NODES} edges={HERO_EDGES} mode="static" />
     </div>
   )
 }

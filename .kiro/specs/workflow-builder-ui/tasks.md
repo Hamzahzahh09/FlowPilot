@@ -20,14 +20,14 @@ After every task: `tsc --noEmit` in `apps/web`, root `pnpm lint`, fix, commit.
   - ReactFlow with dot Background, demo nodes and edges, hidden attribution.
   - Pause here for browser review.
   - Requirements: R4
-- [ ] 5. Edge styles
+- [ ] 5. (moved: delivered by app-pages tasks 4-6) Edge styles
   - StitchEdge with idle, active (animated dash) and done states.
   - Requirements: R5
-- [ ] 6. Run store and mocked run
+- [ ] 6. (moved: delivered by app-pages tasks 4-6) Run store and mocked run
   - Typed store, event reducer, timed mock run with lint error and failing
     test, Simulate push and Reset wiring.
   - Requirements: R6
-- [ ] 7. LogPanel and ApprovalBar
+- [ ] 7. (moved: delivered by app-pages tasks 4-6) LogPanel and ApprovalBar
   - Requirements: R7
-- [ ] 8. Inspector and ReportCard
+- [ ] 8. (moved: delivered by app-pages tasks 4-6) Inspector and ReportCard
   - Requirements: R8

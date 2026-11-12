@@ -108,8 +108,19 @@ components/run/LogPanel (reuse shell/LogPanel), ApprovalBar.tsx,
 components/editor/WorkflowEditor.tsx, NodeInspector.tsx, SaveErrors.tsx
 ```
 `components/editor/Editor.tsx` and `shell/AppShell.tsx` / `TopBar.tsx` /
-`TabPills.tsx` are replaced by the above when `/editor` becomes a redirect
-(task 4) and are removed then, since nothing else imports them.
+`TabPills.tsx` were removed in task 4 (nothing else imported them;
+recoverable from git). `shell/Inspector` and `shell/LogPanel` are reused.
+
+Editor notes (task 4):
+- `lib/workflow/graph.ts` maps stored nodes to React Flow nodes
+  (`EditorNode`, data = display fields + `type` + `config` + `customTitle`).
+- `lib/workflow/validate.ts` combines `validateWorkflow` with per-type Zod
+  config checks and plain field messages.
+- Connecting also works without a pointer: the inspector has "Connect to"
+  (and "Branch" for Fork), because React Flow handles are drag-only.
+- `FitOnResize` refits only when the pane size changes, so adding a node
+  does not move the view.
+- One Spark per workflow: the picker disables Spark when one exists.
 
 ## Status text
 - Node: Idle, Running, Passed, Failed, Waiting.

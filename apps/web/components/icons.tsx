@@ -133,7 +133,28 @@ export function CheckIcon(props: IconProps) {
   )
 }
 
+export function XIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M6.5 6.5l11 11" />
+      <path d="M17.5 6.5l-11 11" />
+    </Svg>
+  )
+}
+
 /* Node icons */
+
+export function ForkIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="5" cy="12" r="2" />
+      <circle cx="19" cy="6" r="2" />
+      <circle cx="19" cy="18" r="2" />
+      <path d="M7 12h3a4 4 0 0 0 4-4 2 2 0 0 1 2-2h1" />
+      <path d="M10 12a4 4 0 0 1 4 4 2 2 0 0 0 2 2h1" />
+    </Svg>
+  )
+}
 
 export function SparkIcon(props: IconProps) {
   return (

@@ -54,6 +54,18 @@
   font-size: 13px;
 }
 
+.select {
+  cursor: pointer;
+}
+
+.textarea {
+  height: auto;
+  min-height: 104px;
+  padding: 10px 14px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
 .hint {
   color: var(--muted);
   font-size: 12.5px;

@@ -13,7 +13,7 @@ After every task: `tsc --noEmit` in `apps/web`, root `pnpm lint`, fix, commit.
   - Cards, Simulate push (run start stub until task 5), New workflow,
     empty state. Pause for browser review.
   - Requirements: R3
-- [ ] 4. `/workflows/[id]` editor
+- [x] 4. `/workflows/[id]` editor
   - Fork node kind, NodePicker, connect/drag/delete, NodeInspector with
     shared Zod config validation, Save with `validateWorkflow`, Simulate
     push. `/editor` redirects; remove the old `/editor` shell components.

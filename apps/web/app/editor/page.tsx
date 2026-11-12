@@ -1,10 +1,7 @@
-import type { Metadata } from 'next'
-import { Editor } from '@/components/editor/Editor'
+import { redirect } from 'next/navigation'
+import { DEMO_WORKFLOW_ID } from '@/lib/data/mock/seed'
 
-export const metadata: Metadata = {
-  title: 'Editor · FlowPilot',
-}
-
-export default function EditorPage() {
-  return <Editor />
+// The editor moved to /workflows/[id]; old links land on the demo workflow.
+export default function EditorRedirect() {
+  redirect(`/workflows/${DEMO_WORKFLOW_ID}`)
 }

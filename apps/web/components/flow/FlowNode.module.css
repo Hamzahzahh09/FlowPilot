@@ -58,6 +58,48 @@
   background: var(--edge);
 }
 
+/* The waiting node "breathes" with a soft ring pulse (flat spread, no blur). */
+.node[data-status='wait'] .box {
+  animation: breathe 2.4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 var(--ring) var(--wait);
+  }
+  50% {
+    box-shadow: 0 0 0 7px color-mix(in srgb, var(--wait) 24%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .node[data-status='wait'] .box {
+    animation: none;
+  }
+}
+
+/* Fork branch names, just above each output handle. */
+.branch {
+  position: absolute;
+  left: calc(100% + 10px);
+  transform: translateY(-140%);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.branchPassed {
+  top: 30%;
+}
+
+.branchFailed {
+  top: 70%;
+}
+
 .label {
   position: absolute;
   top: calc(100% + 10px);
