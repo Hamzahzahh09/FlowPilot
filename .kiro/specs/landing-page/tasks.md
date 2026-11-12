@@ -12,7 +12,7 @@ After every task: `tsc --noEmit` in `apps/web`, root `pnpm lint`, fix, commit.
     `stitch-active` edges, reduced-motion stop).
   - Pause here for browser review.
   - Requirements: R1, R2
-- [ ] 3. How it works
+- [x] 3. How it works
   - Requirements: R3
 - [ ] 4. Three-parts section and footer
   - Requirements: R4, R5
