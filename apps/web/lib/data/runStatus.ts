@@ -1,12 +1,15 @@
 import type { Run, RunStatus } from './types'
 
+/** The part of a run the status depends on. Full runs and DB rows both fit. */
+type Timed = Pick<Run, 'startedAt' | 'events'>
+
 /** Milliseconds since the run started. */
-export function elapsedMs(run: Run, now: number = Date.now()): number {
+export function elapsedMs(run: Pick<Run, 'startedAt'>, now: number = Date.now()): number {
   return Math.max(0, now - Date.parse(run.startedAt))
 }
 
 /** Latest run status whose event time has passed. Queued before any event. */
-export function runStatusAt(run: Run, now: number = Date.now()): RunStatus {
+export function runStatusAt(run: Timed, now: number = Date.now()): RunStatus {
   const elapsed = elapsedMs(run, now)
   let status: RunStatus = 'queued'
   for (const event of run.events) {

@@ -1,7 +1,8 @@
 // Demo-only auth. These are public test credentials for hackathon judges and
-// are printed on the login page. The session cookie is not signed and grants
-// nothing server-side: all app data is mocked in the browser. Replace this
-// module with real auth before handling real user data.
+// are printed on the login page. The session cookie is not signed: anyone can
+// set it, so it only keeps casual visitors and crawlers out of the app and the
+// /api routes. The data in Neon is shared demo data. Replace this module with
+// real auth before handling real user data.
 
 export const DEMO_ACCOUNT = {
   email: 'demo@flowpilot.dev',

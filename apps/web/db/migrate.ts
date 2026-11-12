@@ -6,7 +6,7 @@ import postgres from 'postgres'
 const url = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL
 if (!url) throw new Error('DATABASE_URL_UNPOOLED or DATABASE_URL is required')
 
-const client = postgres(url, { max: 1 })
+const client = postgres(url, { max: 1, onnotice: () => {} })
 
 migrate(drizzle(client), { migrationsFolder: './drizzle' })
   .then(() => console.log('Migrations applied'))

@@ -8,12 +8,11 @@ import type {
   RunSummary,
   Runner,
   Workflow,
-  WorkflowGraph,
   WorkflowSummary,
-  TriggerType,
 } from '../types'
 import { readState, subscribe, writeState } from './store'
 import type { MockState, RunnerRecord } from './seed'
+import { newWorkflowGraph, triggerOf } from '../demo'
 
 // Small latency so loading states are exercised like a real backend.
 const LATENCY_MS = 120
@@ -23,13 +22,6 @@ function update(fn: (draft: MockState) => MockState): MockState {
   const next = fn(readState())
   writeState(next)
   return next
-}
-
-function triggerOf(graph: WorkflowGraph): TriggerType | null {
-  const spark = graph.nodes.find((node) => node.type === 'Spark')
-  if (!spark) return null
-  const config = spark.config as { triggerType?: TriggerType }
-  return config.triggerType ?? 'manual_simulate'
 }
 
 function summarize(workflow: Workflow, runs: Run[]): WorkflowSummary {
@@ -79,19 +71,11 @@ export const mockSource: DataSource = {
     async create(input) {
       await wait()
       const now = new Date().toISOString()
-      const spark = newId()
-      const report = newId()
       const workflow: Workflow = {
         id: newId(),
         name: input?.name?.trim() || 'Untitled workflow',
         description: '',
-        graph: {
-          nodes: [
-            { id: spark, type: 'Spark', position: { x: 0, y: 0 }, config: { triggerType: 'manual_simulate' } },
-            { id: report, type: 'Autopsy Report', position: { x: 400, y: 0 }, config: { format: 'markdown' } },
-          ],
-          edges: [{ id: newId(), source: spark, target: report }],
-        },
+        graph: newWorkflowGraph(newId),
         createdAt: now,
         updatedAt: now,
       }
