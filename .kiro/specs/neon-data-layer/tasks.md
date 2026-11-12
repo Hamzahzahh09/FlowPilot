@@ -19,5 +19,5 @@ After every task: `tsc --noEmit` in `apps/web`, root `pnpm lint`, fix, commit.
   - Requirements: R6
 - [x] 6. Remove the old editor, add redirects
   - Requirements: R5
-- [ ] 7. End-to-end check against Neon
+- [x] 7. End-to-end check against Neon
   - Create, save, simulate, approve and reject through the API.
