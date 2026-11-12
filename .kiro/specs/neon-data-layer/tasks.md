@@ -13,11 +13,11 @@ After every task: `tsc --noEmit` in `apps/web`, root `pnpm lint`, fix, commit.
 - [x] 3. Server modules and API routes
   - `server/*`, `app/api/**`, auth for `/api/*` in middleware.
   - Requirements: R3, R4
-- [ ] 4. `apiSource` and data source switch
+- [x] 4. `apiSource` and data source switch
   - Requirements: R1
-- [ ] 5. Seed
+- [x] 5. Seed
   - Requirements: R6
-- [ ] 6. Remove the old editor, add redirects
+- [x] 6. Remove the old editor, add redirects
   - Requirements: R5
 - [ ] 7. End-to-end check against Neon
   - Create, save, simulate, approve and reject through the API.

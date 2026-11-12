@@ -1,4 +1,4 @@
-import { DEMO_WORKFLOW_ID } from '@/lib/data/mock/seed'
+import { DEMO_WORKFLOW_ID } from '@/lib/data/demo'
 
 export const REPO_URL = 'https://github.com/Hamzahzahh09/FlowPilot'
 
