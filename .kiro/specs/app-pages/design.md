@@ -136,6 +136,22 @@ Editor notes (task 4):
   awaiting wait, queued/cancelled muted.
 - Runner: Online (ok), Offline (muted).
 
+## Accessibility pass (task 9)
+Measured with a WCAG contrast script and headless Edge (1280px and 390px):
+- Every page has exactly one h1 and no horizontal page scroll at both widths.
+- Every Tab stop on /workflows, the editor and /settings/github shows a
+  focus ring. Edges show focus as an accent stroke 3.5px wide, and have
+  readable names ("Connection from On push to Report").
+- Reduced motion: active edge and waiting-node animations are `none`
+  (dashes stay); with normal motion they run.
+- Approve and Reject render at the same size, weight and background.
+- Token adjustments for AA (same names, values changed in globals.css):
+  dark `--muted` #9a9aa3 -> #a6a6af (was 3.9:1 on `--node-hover`),
+  dark `--edge` #6b6b72 -> #7d7d84 (was 2.4:1 on `--node`, 3:1 needed),
+  light `--edge` #9a9aa3 -> #878790, light `--ok` #197444,
+  `--bad` #bb3426, `--wait` #875e00 (were 4.2 to 4.3:1 on `--node-hover`).
+  design.md still lists the old dark values; it needs the same update.
+
 ## Copy button
 `navigator.clipboard.writeText`; on success the label changes to "Copied"
 for 2 s and a polite live region announces it. On failure the label says

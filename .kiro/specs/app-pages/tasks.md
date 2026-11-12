@@ -29,7 +29,7 @@ After every task: `tsc --noEmit` in `apps/web`, root `pnpm lint`, fix, commit.
   - Requirements: R7, R8
 - [x] 8. P2 placeholders `/runs`, `/templates`
   - Requirements: R9
-- [ ] 9. Responsive and accessibility pass
+- [x] 9. Responsive and accessibility pass
   - Requirements: R15, R16
 - [ ] 10. Links
   - Landing buttons and header to `/login` or `/workflows`, logo links,

@@ -13,9 +13,9 @@
   --node: #343437;
   --node-hover: #3c3c40;
   --dot: #4a4a50;
-  --edge: #6b6b72;
+  --edge: #7d7d84; /* design.md #6b6b72 is 2.4:1 on --node; 3:1 needed for graphics */
   --text: #f2f2f3;
-  --muted: #9a9aa3;
+  --muted: #a6a6af; /* design.md #9a9aa3 is 3.9:1 on --node-hover; AA needs 4.5:1 */
   --accent: #ff9fb2;
   --on-accent: #1f1f21;
   --ok: #7ddba3;
@@ -44,14 +44,14 @@
     --node: #ececee;
     --node-hover: #e3e3e6;
     --dot: #c9c9cf;
-    --edge: #9a9aa3;
+    --edge: #878790; /* 3:1 on surface, node and bg */
     --text: #1f1f21;
     --muted: #5f5f68;
     --accent: #b8325a;
     --on-accent: #ffffff;
-    --ok: #1f7a4a;
-    --bad: #c0392b;
-    --wait: #8a6100;
+    --ok: #197444;
+    --bad: #bb3426;
+    --wait: #875e00;
   }
 }
 
@@ -145,6 +145,11 @@ samp {
 /* Focus ring is drawn on the node box itself (see FlowNode.module.css). */
 .react-flow__node:focus-visible {
   outline: none;
+}
+
+/* Keyboard focus on an edge: accent stroke (from React Flow) plus extra width. */
+.react-flow__edge:focus-visible .react-flow__edge-path {
+  stroke-width: 3.5;
 }
 
 /* Active ("running") stitch: accent, dashed 6/8, dash moves one period per cycle. */

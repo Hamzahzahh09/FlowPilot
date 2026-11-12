@@ -225,6 +225,15 @@ export function EditorWorkbench({ workflow }: { workflow: Workflow }) {
   const hasSpark = nodes.some((n) => n.data.type === 'Spark')
   const saveState = busy === 'saving' ? 'Saving…' : dirty ? 'Unsaved changes' : 'All changes saved'
 
+  // Readable names for keyboard and screen reader users (React Flow's default uses ids).
+  const titles = new Map(nodes.map((n) => [n.id, n.data.title]))
+  const labelledEdges = edges.map((e) => ({
+    ...e,
+    ariaLabel: `Connection from ${titles.get(e.source) ?? 'node'}${
+      e.sourceHandle ? ` (${e.sourceHandle === 'failed' ? 'Failed' : 'Passed'} branch)` : ''
+    } to ${titles.get(e.target) ?? 'node'}`,
+  }))
+
   return (
     <div className={styles.editor}>
       <PageHeader
@@ -268,7 +277,7 @@ export function EditorWorkbench({ workflow }: { workflow: Workflow }) {
         <section ref={canvasRef} className={styles.canvas} aria-label="Workflow canvas">
           <ReactFlow<EditorNode, Edge>
             nodes={nodes}
-            edges={edges}
+            edges={labelledEdges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
