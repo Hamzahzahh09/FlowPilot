@@ -2,7 +2,7 @@ import type { RunStatus } from '@/lib/data'
 import { RUN_STATUS_LABEL } from '@/lib/data/runStatus'
 import styles from './StatusBadge.module.css'
 
-type Tone = 'accent' | 'ok' | 'bad' | 'wait' | 'muted'
+export type Tone = 'accent' | 'ok' | 'bad' | 'wait' | 'muted'
 
 const RUN_TONE: Record<RunStatus, Tone> = {
   queued: 'muted',
@@ -14,19 +14,21 @@ const RUN_TONE: Record<RunStatus, Tone> = {
   timed_out: 'bad',
 }
 
-interface StatusBadgeProps {
-  /** Run status, or null for "Never run". */
-  status: RunStatus | null
-}
-
 // Dot in the status color plus a text label: status never relies on color alone.
-export function StatusBadge({ status }: StatusBadgeProps) {
-  const tone: Tone = status ? RUN_TONE[status] : 'muted'
-  const label = status ? RUN_STATUS_LABEL[status] : 'Never run'
+export function Badge({ tone, label }: { tone: Tone; label: string }) {
   return (
     <span className={styles.badge} data-tone={tone}>
       <span className={styles.dot} aria-hidden="true" />
       {label}
     </span>
+  )
+}
+
+/** Run status, or null for "Never run". */
+export function StatusBadge({ status }: { status: RunStatus | null }) {
+  return status ? (
+    <Badge tone={RUN_TONE[status]} label={RUN_STATUS_LABEL[status]} />
+  ) : (
+    <Badge tone="muted" label="Never run" />
   )
 }

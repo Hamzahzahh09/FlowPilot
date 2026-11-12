@@ -25,7 +25,7 @@ After every task: `tsc --noEmit` in `apps/web`, root `pnpm lint`, fix, commit.
 - [x] 6. `/runs/[id]/report`
   - ReportCard for Approve and Reject. Pause for browser review.
   - Requirements: R6
-- [ ] 7. `/runners` and `/settings/github`
+- [x] 7. `/runners` and `/settings/github`
   - Requirements: R7, R8
 - [ ] 8. P2 placeholders `/runs`, `/templates`
   - Requirements: R9

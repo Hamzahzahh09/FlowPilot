@@ -1,0 +1,78 @@
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.description {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.switch {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  padding: 4px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  cursor: pointer;
+}
+
+.track {
+  position: relative;
+  width: 42px;
+  height: 24px;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-pill);
+  background: var(--node);
+  transition: background-color 120ms ease;
+}
+
+.thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: transform 120ms ease;
+}
+
+.switch[aria-checked='true'] .track {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.switch[aria-checked='true'] .thumb {
+  background: var(--on-accent);
+  transform: translateX(18px);
+}
+
+.state {
+  width: 24px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  text-align: left;
+}
+
+.switch:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
