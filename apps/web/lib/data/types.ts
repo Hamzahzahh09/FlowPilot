@@ -53,13 +53,15 @@ export type CheckResult = {
   details: string[]
 }
 
+export type NodeStatusEvent = { at: number; kind: 'node'; nodeId: string; status: NodeStatus }
+
 /**
  * Ordered run events. `at` is the offset in ms from run start.
  * The mock timeline and a future SSE stream produce the same shape.
  */
 export type RunEvent =
   | { at: number; kind: 'run'; status: RunStatus }
-  | { at: number; kind: 'node'; nodeId: string; status: NodeStatus }
+  | NodeStatusEvent
   | { at: number; kind: 'log'; level: LogLevel; nodeId?: string; text: string }
   | { at: number; kind: 'finding'; nodeId: string; finding: Finding }
   | { at: number; kind: 'check'; nodeId: string; result: CheckResult }

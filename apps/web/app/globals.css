@@ -154,6 +154,11 @@ samp {
   animation: stitch-flow 0.9s linear infinite;
 }
 
+/* Finished stitch: solid muted. */
+.react-flow__edge.stitch-done .react-flow__edge-path {
+  stroke: var(--muted);
+}
+
 @keyframes stitch-flow {
   from {
     stroke-dashoffset: 14;

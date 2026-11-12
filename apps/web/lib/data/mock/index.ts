@@ -1,10 +1,10 @@
+import { simulateRun } from '@/lib/run/timeline'
 import { newId, randomHex, sha256Hex } from '../ids'
 import { elapsedMs, runStatusAt } from '../runStatus'
 import type { DataSource } from '../source'
 import type {
   GithubSettings,
   Run,
-  RunEvent,
   RunSummary,
   Runner,
   Workflow,
@@ -57,21 +57,6 @@ function publicRunner(record: RunnerRecord): Runner {
     createdAt: record.createdAt,
     tokenPreview: record.tokenPreview,
   }
-}
-
-/**
- * Builds the timed events for a new run. Replaced by the real mock timeline
- * in app-pages task 5 (lib/run/timeline.ts).
- */
-export type TimelineBuilder = (graph: WorkflowGraph) => RunEvent[]
-export type DecisionBuilder = (run: Run, decision: 'approved' | 'rejected', at: number) => RunEvent[]
-
-let buildTimeline: TimelineBuilder = () => [{ at: 0, kind: 'run', status: 'queued' }]
-let buildDecision: DecisionBuilder = (_run, decision, at) => [{ at, kind: 'decision', decision }]
-
-export function configureRunEngine(timeline: TimelineBuilder, decision: DecisionBuilder): void {
-  buildTimeline = timeline
-  buildDecision = decision
 }
 
 export const mockSource: DataSource = {
@@ -161,7 +146,7 @@ export const mockSource: DataSource = {
         trigger: triggerOf(workflow.graph) ?? 'manual_simulate',
         startedAt: new Date().toISOString(),
         graph: structuredClone(workflow.graph),
-        events: buildTimeline(workflow.graph),
+        events: simulateRun(workflow.graph),
       }
       update((s) => ({ ...s, runs: [run, ...s.runs] }))
       return run
@@ -173,7 +158,9 @@ export const mockSource: DataSource = {
       if (!run) throw new Error('Run not found')
       if (runStatusAt(run) !== 'awaiting_approval') throw new Error('This run is not waiting for approval')
       const at = elapsedMs(run)
-      const decided: Run = { ...run, events: [...run.events, ...buildDecision(run, decision, at)] }
+      // The mock timeline is deterministic, so rebuilding it with the decision
+      // keeps every past event identical and adds what follows the lever.
+      const decided: Run = { ...run, events: simulateRun(run.graph, { decision, at }) }
       update((s) => ({ ...s, runs: s.runs.map((r) => (r.id === runId ? decided : r)) }))
       return decided
     },

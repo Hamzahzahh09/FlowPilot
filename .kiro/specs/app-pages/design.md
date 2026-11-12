@@ -82,9 +82,16 @@ offered in the picker (not requested).
   graph snapshot, events }`. Events have an `at` offset in ms. The view
   ticks every 250 ms and feeds events with `at <= elapsed` to the reducer.
   This makes the run survive navigation and reloads.
-- Approve/Reject append a `decision` event at the current offset plus
-  follow-up events (lever ok/fail, autopsy running then ok, run
-  succeeded or failed). Approve: run status succeeded. Reject: failed.
+- Approve/Reject rebuild the event list with `simulateRun(graph, {decision,
+  at})`. The timeline is deterministic, so every past event stays identical
+  (checked with a script) and the events after the lever are added.
+  Approve: run status succeeded. Reject: failed. Both end with a report.
+- Files: `lib/run/timeline.ts` (simulateRun), `lib/run/reduce.ts`
+  (reduceRun, LOG_TAG, formatOffset), `lib/run/useRunView.ts` (one timer
+  set to the next due event, idle while waiting or finished).
+- Edge states use edge classNames on the default bezier edge
+  (`stitch-active`, `stitch-done` in globals.css) instead of a custom
+  StitchEdge component; same look, less code.
 - Swapping in SSE: the stream delivers the same `RunEvent` objects.
 
 ## Layout

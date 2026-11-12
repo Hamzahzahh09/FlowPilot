@@ -18,7 +18,7 @@ After every task: `tsc --noEmit` in `apps/web`, root `pnpm lint`, fix, commit.
     shared Zod config validation, Save with `validateWorkflow`, Simulate
     push. `/editor` redirects; remove the old `/editor` shell components.
   - Requirements: R4
-- [ ] 5. `/runs/[id]` live view
+- [x] 5. `/runs/[id]` live view
   - StitchEdge states, run reducer and mock timeline, RunCanvas, LogPanel,
     ApprovalBar, status badge.
   - Requirements: R5, R14
