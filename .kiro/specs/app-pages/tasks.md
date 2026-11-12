@@ -22,7 +22,7 @@ After every task: `tsc --noEmit` in `apps/web`, root `pnpm lint`, fix, commit.
   - StitchEdge states, run reducer and mock timeline, RunCanvas, LogPanel,
     ApprovalBar, status badge.
   - Requirements: R5, R14
-- [ ] 6. `/runs/[id]/report`
+- [x] 6. `/runs/[id]/report`
   - ReportCard for Approve and Reject. Pause for browser review.
   - Requirements: R6
 - [ ] 7. `/runners` and `/settings/github`
