@@ -55,3 +55,7 @@ static. The hero applies it through each edge's `className`.
 - Lead: "Push to GitHub and FlowPilot takes it from there. An AI agent reviews
   the change, a sandboxed runner lints and tests it, and the run waits for
   your approval before it writes the final report."
+
+## Responsive and accessibility pass (task 5)
+Checked in headless Edge at 1280px (dark, light) and 390px: one h1, one header/main/footer, no horizontal page scroll, every Tab stop shows a focus ring and the hero preview adds none, hero edge animation is `none` under reduced motion. Contrast follows the AA token values in app-pages design.md.
+
