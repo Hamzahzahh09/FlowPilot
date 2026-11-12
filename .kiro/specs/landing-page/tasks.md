@@ -14,7 +14,7 @@ After every task: `tsc --noEmit` in `apps/web`, root `pnpm lint`, fix, commit.
   - Requirements: R1, R2
 - [x] 3. How it works
   - Requirements: R3
-- [ ] 4. Three-parts section and footer
+- [x] 4. Three-parts section and footer
   - Requirements: R4, R5
 - [ ] 5. Responsive and accessibility pass
   - Check 1280px and 390px, single h1, focus rings, contrast in both themes.

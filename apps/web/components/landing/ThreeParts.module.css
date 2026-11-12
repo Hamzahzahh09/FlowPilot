@@ -1,0 +1,52 @@
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 32px;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 28px;
+  background: var(--surface);
+  border-radius: var(--radius-container);
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.text {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.stitch {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--node);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.stitchLabel {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+
+@media (max-width: 900px) {
+  .cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .card {
+    padding: 24px;
+  }
+}

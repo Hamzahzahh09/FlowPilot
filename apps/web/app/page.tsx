@@ -1,6 +1,8 @@
 import { HowItWorks } from '@/components/landing/HowItWorks'
 import { Hero } from '@/components/landing/Hero'
+import { LandingFooter } from '@/components/landing/LandingFooter'
 import { LandingHeader } from '@/components/landing/LandingHeader'
+import { ThreeParts } from '@/components/landing/ThreeParts'
 import styles from '@/components/landing/Landing.module.css'
 
 export default function Home() {
@@ -12,9 +14,11 @@ export default function Home() {
       <main className={styles.container}>
         <Hero />
         <HowItWorks />
-        {/* ThreeParts (task 4) */}
+        <ThreeParts />
       </main>
-      <footer className={styles.container}>{/* LandingFooter (task 4) */}</footer>
+      <footer className={styles.container}>
+        <LandingFooter />
+      </footer>
     </div>
   )
 }
