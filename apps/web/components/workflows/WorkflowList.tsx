@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { PageHeader } from '@/components/app/PageHeader'
 import { PlusIcon, WorkflowsIcon } from '@/components/icons'
+import { WorkflowsSkeleton } from '@/components/skeletons/PageSkeletons'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { data } from '@/lib/data'
@@ -42,11 +43,7 @@ export function WorkflowList() {
         {create.error || simulate.error}
       </div>
 
-      {list.status === 'loading' && (
-        <p className={styles.loading} role="status">
-          Loading workflows…
-        </p>
-      )}
+      {list.status === 'loading' && <WorkflowsSkeleton header={false} />}
 
       {list.status === 'error' && (
         <p className={styles.error}>Could not load workflows: {list.error}</p>

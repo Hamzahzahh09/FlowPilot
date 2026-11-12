@@ -3,6 +3,7 @@
 import { PageHeader } from '@/components/app/PageHeader'
 import { useSetTopBarDetail } from '@/components/app/TopBarContext'
 import { RunsIcon } from '@/components/icons'
+import { ReportSkeleton } from '@/components/skeletons/PageSkeletons'
 import { ButtonLink } from '@/components/ui/ButtonLink'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { data } from '@/lib/data'
@@ -10,7 +11,6 @@ import { useQuery } from '@/lib/data/hooks'
 import { isFinished } from '@/lib/data/runStatus'
 import { useRunView } from '@/lib/run/useRunView'
 import { ReportCard } from './ReportCard'
-import styles from './RunView.module.css'
 
 export function ReportView({ id }: { id: string }) {
   const query = useQuery(`run:${id}`, () => data.runs.get(id))
@@ -19,18 +19,18 @@ export function ReportView({ id }: { id: string }) {
   useSetTopBarDetail(run ? `${run.workflowName} report` : null)
 
   if (query.status === 'loading') {
-    return (
-      <p className={styles.loading} role="status">
-        Loading report…
-      </p>
-    )
+    return <ReportSkeleton />
   }
 
   if (!run || !view) {
     return (
       <PageHeader
         title="Report not found"
-        description="Runs and their reports are stored in this browser only."
+        description={
+          query.status === 'error'
+            ? `Could not load it: ${query.error}`
+            : 'The run may have been deleted, or the link is incomplete.'
+        }
         actions={<ButtonLink href="/workflows">Back to workflows</ButtonLink>}
       />
     )

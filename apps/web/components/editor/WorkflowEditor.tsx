@@ -3,22 +3,18 @@
 import { ReactFlowProvider } from '@xyflow/react'
 import { PageHeader } from '@/components/app/PageHeader'
 import { useSetTopBarDetail } from '@/components/app/TopBarContext'
+import { EditorSkeleton } from '@/components/skeletons/PageSkeletons'
 import { ButtonLink } from '@/components/ui/ButtonLink'
 import { data } from '@/lib/data'
 import { useQuery } from '@/lib/data/hooks'
 import { EditorWorkbench } from './EditorWorkbench'
-import styles from './WorkflowEditor.module.css'
 
 export function WorkflowEditor({ id }: { id: string }) {
   const query = useQuery(`workflow:${id}`, () => data.workflows.get(id))
   useSetTopBarDetail(query.status === 'ready' && query.data ? query.data.name : null)
 
   if (query.status === 'loading') {
-    return (
-      <p className={styles.loading} role="status">
-        Loading workflow…
-      </p>
-    )
+    return <EditorSkeleton />
   }
 
   if (query.status === 'error' || !query.data) {
@@ -28,7 +24,7 @@ export function WorkflowEditor({ id }: { id: string }) {
         description={
           query.status === 'error'
             ? `Could not load it: ${query.error}`
-            : 'It may have been created in another browser. Workflows are stored in this browser only.'
+            : 'It may have been deleted, or the link is incomplete.'
         }
         actions={<ButtonLink href="/workflows">Back to workflows</ButtonLink>}
       />

@@ -1,0 +1,43 @@
+.block {
+  display: block;
+  flex: none;
+  max-width: 100%;
+  background: var(--node);
+  border-radius: var(--radius-node);
+  animation: skeleton-pulse 1.8s ease-in-out infinite;
+}
+
+.pill {
+  border-radius: var(--radius-pill);
+}
+
+/* A flat panel the blocks sit in, like a card or the canvas. */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--node);
+  border-radius: var(--radius-node);
+}
+
+.container {
+  border-radius: var(--radius-container);
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .block {
+    animation: none;
+  }
+}

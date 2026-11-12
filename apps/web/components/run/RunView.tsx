@@ -3,6 +3,7 @@
 import { PageHeader } from '@/components/app/PageHeader'
 import { useSetTopBarDetail } from '@/components/app/TopBarContext'
 import { LogPanel } from '@/components/shell/LogPanel'
+import { RunSkeleton } from '@/components/skeletons/PageSkeletons'
 import { ButtonLink } from '@/components/ui/ButtonLink'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { data, type RunDecision } from '@/lib/data'
@@ -29,11 +30,7 @@ export function RunLiveView({ id }: { id: string }) {
   })
 
   if (query.status === 'loading') {
-    return (
-      <p className={styles.loading} role="status">
-        Loading run…
-      </p>
-    )
+    return <RunSkeleton />
   }
 
   if (!run || !view) {
@@ -43,7 +40,7 @@ export function RunLiveView({ id }: { id: string }) {
         description={
           query.status === 'error'
             ? `Could not load it: ${query.error}`
-            : 'Runs are stored in this browser only. Start a new one from your workflows.'
+            : 'It may have been deleted, or the link is incomplete. Start a new one from your workflows.'
         }
         actions={<ButtonLink href="/workflows">Back to workflows</ButtonLink>}
       />
