@@ -5,7 +5,7 @@ After every task: `tsc --noEmit` in `apps/web`, root `pnpm lint`, fix, commit.
 - [x] 1. Skeletons and route loading.tsx
   - Skeleton, page skeletons, four loading.tsx, use them for data loading.
   - Requirements: R1, R6
-- [ ] 2. Top progress bar
+- [x] 2. Top progress bar
   - lib/navigation.ts, NavigationProgress, useNavigate in every router.push.
   - Requirements: R2, R6
 - [ ] 3. Pending buttons

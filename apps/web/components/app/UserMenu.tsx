@@ -1,14 +1,14 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { useEffect, useId, useRef, useState } from 'react'
 import { ChevronDownIcon } from '@/components/icons'
 import { DEMO_ACCOUNT, endSession } from '@/lib/auth/demo'
+import { useNavigate } from '@/lib/navigation'
 import styles from './UserMenu.module.css'
 
 // Disclosure (button + panel), not an ARIA menu: Tab moves through the panel.
 export function UserMenu() {
-  const router = useRouter()
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -33,10 +33,11 @@ export function UserMenu() {
     }
   }, [open])
 
+  // Full load: drops the client router cache, so Back does not show app
+  // pages from before sign-out.
   const signOut = () => {
     endSession()
-    router.push('/login')
-    router.refresh()
+    navigate.assign('/login')
   }
 
   return (
@@ -63,7 +64,7 @@ export function UserMenu() {
           <br />
           <strong>{DEMO_ACCOUNT.email}</strong>
         </p>
-        <p className={styles.note}>Demo account. Data is stored in this browser only.</p>
+        <p className={styles.note}>Demo account. Workflows and runs are shared demo data.</p>
         <button type="button" className={styles.signOut} onClick={signOut}>
           Sign out
         </button>

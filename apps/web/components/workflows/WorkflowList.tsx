@@ -1,6 +1,5 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { PageHeader } from '@/components/app/PageHeader'
 import { PlusIcon, WorkflowsIcon } from '@/components/icons'
 import { WorkflowsSkeleton } from '@/components/skeletons/PageSkeletons'
@@ -8,21 +7,22 @@ import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { data } from '@/lib/data'
 import { useAction, useQuery } from '@/lib/data/hooks'
+import { useNavigate } from '@/lib/navigation'
 import { WorkflowCard } from './WorkflowCard'
 import styles from './WorkflowList.module.css'
 
 export function WorkflowList() {
-  const router = useRouter()
+  const navigate = useNavigate()
   const list = useQuery('workflows', () => data.workflows.list())
 
   const create = useAction(async () => {
     const workflow = await data.workflows.create()
-    router.push(`/workflows/${workflow.id}`)
+    navigate.push(`/workflows/${workflow.id}`)
   })
 
   const simulate = useAction(async (workflowId: string) => {
     const run = await data.runs.start(workflowId)
-    router.push(`/runs/${run.id}`)
+    navigate.push(`/runs/${run.id}`)
   })
 
   const newButton = (

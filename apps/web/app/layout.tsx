@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, JetBrains_Mono } from 'next/font/google'
+import { Suspense } from 'react'
+import { NavigationProgress } from '@/components/app/NavigationProgress'
 import './globals.css'
 
 // Geist is not in the next/font/google list for Next 14.2.35, so we use
@@ -30,7 +32,13 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        {/* Suspense: NavigationProgress reads useSearchParams. */}
+        <Suspense fallback={null}>
+          <NavigationProgress />
+        </Suspense>
+        {children}
+      </body>
     </html>
   )
 }

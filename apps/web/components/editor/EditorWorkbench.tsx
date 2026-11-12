@@ -14,7 +14,6 @@ import {
   type NodeChange,
   type OnDelete,
 } from '@xyflow/react'
-import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { getDefaultConfig } from 'shared'
 import { PageHeader } from '@/components/app/PageHeader'
@@ -24,6 +23,7 @@ import { PlayIcon } from '@/components/icons'
 import { Button } from '@/components/ui/Button'
 import { data, type Workflow } from '@/lib/data'
 import { newId } from '@/lib/data/ids'
+import { useNavigate } from '@/lib/navigation'
 import {
   NODE_META,
   nodeData,
@@ -42,7 +42,7 @@ import styles from './WorkflowEditor.module.css'
 const DELETE_KEYS = ['Backspace', 'Delete']
 
 export function EditorWorkbench({ workflow }: { workflow: Workflow }) {
-  const router = useRouter()
+  const navigate = useNavigate()
   const { screenToFlowPosition } = useReactFlow<EditorNode, Edge>()
   const canvasRef = useRef<HTMLElement>(null)
 
@@ -215,7 +215,7 @@ export function EditorWorkbench({ workflow }: { workflow: Workflow }) {
     setBusy('starting')
     try {
       const run = await data.runs.start(workflow.id)
-      router.push(`/runs/${run.id}`)
+      navigate.push(`/runs/${run.id}`)
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : String(error))
       setBusy(null)
