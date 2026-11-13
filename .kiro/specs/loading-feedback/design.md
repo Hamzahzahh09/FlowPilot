@@ -86,3 +86,43 @@ new page replaces it; after 8 s WaitNotice offers Retry.
   `workflows.create`) and serves the next `get` of that id from memory once.
 - `loading.tsx` on the four routes gives Link prefetch a boundary, so the
   skeleton appears on click.
+
+## Results (after this spec)
+Production (pnpm build && pnpm start), round 2, same script. The network
+to Neon was unstable during these runs (single round trip 270 ms to 13 s),
+so treat single numbers as rough.
+
+| transition | before route / ready | after route / ready |
+|---|---|---|
+| login -> /workflows | stuck on /login | 244 / 1271 ms (full load) |
+| /workflows -> editor | 85 / 688 | 44 / 493 |
+| /workflows -> run (Simulate push) | 1940 / 3008 | 2573 / 2603 (one POST, no second GET) |
+| run -> report | 115 / 711 | 24 / 65 (finished run reused) |
+| report -> run | 16 / 597 | 15 / 65 |
+
+Server functions against Neon (scripts/time-server.ts, warm):
+listRuns 8.7-13 s -> ~280 ms, getWorkflow ~950-1500 ms -> ~300 ms,
+listWorkflows ~1.2-2.2 s -> ~270 ms.
+
+What changed and why:
+- drizzle-orm 0.30 calls client.unsafe() with prepare: false, so every
+  query with parameters cost a describe round trip first. db/client.ts
+  now passes prepare: true to unsafe (Neon's pooler supports it).
+- Lists downloaded every run's events to compute status. Status is now
+  computed in SQL from the stored timeline (liveStatus in
+  server/runs.ts), using the app's clock, so it matches unStatusAt.
+  scripts/check-run-status.ts compares both.
+- listWorkflows runs its two queries in parallel.
+- The client reuses the run or workflow a mutation returned, and keeps
+  finished runs for the tab.
+- Idle Neon connections are closed after 20 s on our side and idempotent
+  calls retry once on a dropped connection (the ECONNRESET on Save).
+
+Found, not fixed here:
+- This machine's clock is about 25.7 s behind the database. The run view
+  replays the timeline with the browser clock against a server-written
+  startedAt, so on a hosted deploy a visitor with a skewed clock sees the
+  run shifted by that much.
+- drizzle-orm 0.30 with postgres-js stores jsonb as a JSON string scalar
+  (jsonb_typeof = 'string'). Reads work, liveStatus handles both shapes,
+  but JSON queries on these columns need #>> '{}' until it is upgraded.

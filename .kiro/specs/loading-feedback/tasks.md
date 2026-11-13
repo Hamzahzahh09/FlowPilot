@@ -16,5 +16,5 @@ After every task: `tsc --noEmit` in `apps/web`, root `pnpm lint`, fix, commit.
   - Requirements: R5, R6
 - [x] 5. Login status and production login fix
   - Requirements: R4
-- [ ] 6. Measure and fix production speed
+- [x] 6. Measure and fix production speed
   - Requirements: R7

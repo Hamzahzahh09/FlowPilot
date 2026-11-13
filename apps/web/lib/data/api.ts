@@ -19,12 +19,18 @@ class HttpError extends Error {
 }
 
 async function request<T>(path: string, init?: { method: string; body?: unknown }): Promise<T> {
-  const response = await fetch(path, {
-    method: init?.method ?? 'GET',
-    headers: init?.body === undefined ? undefined : { 'Content-Type': 'application/json' },
-    body: init?.body === undefined ? undefined : JSON.stringify(init.body),
-    cache: 'no-store',
-  })
+  let response: Response
+  try {
+    response = await fetch(path, {
+      method: init?.method ?? 'GET',
+      headers: init?.body === undefined ? undefined : { 'Content-Type': 'application/json' },
+      body: init?.body === undefined ? undefined : JSON.stringify(init.body),
+      cache: 'no-store',
+    })
+  } catch {
+    // fetch only rejects when no response arrived ("Failed to fetch").
+    throw new HttpError(0, 'Could not reach the server. Check your connection and try again.')
+  }
   const body: unknown = await response.json().catch(() => null)
   if (!response.ok) {
     const { error, details } = (body ?? {}) as ErrorBody
