@@ -22,8 +22,11 @@ export function toWorkflow(row: WorkflowRow): Workflow {
 
 export async function listWorkflows(): Promise<WorkflowSummary[]> {
   const db = requireDb()
-  const rows = await db.select().from(workflows).orderBy(desc(workflows.updatedAt))
-  const last = await latestRunPerWorkflow()
+  // Independent queries: run them together instead of one after another.
+  const [rows, last] = await Promise.all([
+    db.select().from(workflows).orderBy(desc(workflows.updatedAt)),
+    latestRunPerWorkflow(),
+  ])
   return rows.map((row) => {
     const graph = row.data as WorkflowGraph
     return {

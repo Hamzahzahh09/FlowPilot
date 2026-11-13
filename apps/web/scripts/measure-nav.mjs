@@ -137,13 +137,25 @@ async function main() {
       await sleep(100)
       const record = (name, r) => results.push({ round, name, ...r })
 
-      record('login -> /workflows', await step('button[type=submit]', '', '^/workflows$').catch(async (error) => {
-        // Record a stuck login and continue with the session cookie set directly.
-        console.error(`round ${round}: login did not reach /workflows: ${error.message}`)
-        await goto('/workflows')
+      // Login does a full page load, so time it from Node: click, new
+      // document loaded (route), then real content (ready). A stuck login
+      // (still on /login after 15 s) is recorded and the run continues.
+      record('login -> /workflows (full load)', await (async () => {
+        const t0 = performance.now()
+        const loaded = cdp.once('Page.loadEventFired')
+        await evaluate(`document.querySelector('button[type=submit]').click()`)
+        const done = await Promise.race([loaded.then(() => true), sleep(15000).then(() => false)])
+        const path = await evaluate('location.pathname')
+        if (!done || path !== '/workflows') {
+          console.error(`round ${round}: login stuck at ${path}`)
+          await goto('/workflows')
+          await settle()
+          return { route: 'stuck', ready: 'stuck' }
+        }
+        const route = Math.round(performance.now() - t0)
         await settle()
-        return { route: 'stuck', ready: 'stuck' }
-      }))
+        return { route, ready: Math.round(performance.now() - t0) }
+      })())
       record('/workflows -> editor (Open)', await step(`a[href="/workflows/${DEMO}"]`, 'Open', `^/workflows/${DEMO}$`))
       record('editor -> /runners (side nav)', await step('nav a[href="/runners"]', '', '^/runners$'))
       record('/runners -> /workflows (side nav)', await step('nav a[href="/workflows"]', '', '^/workflows$'))

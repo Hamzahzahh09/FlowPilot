@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull } from 'drizzle-orm'
+import { and, desc, eq, isNull, sql } from 'drizzle-orm'
 import { workflowGraphSchema } from 'shared'
 import { runs, type RunRow } from '@/db/schema'
 import { triggerOf } from '@/lib/data/demo'
@@ -23,29 +23,43 @@ import { requireWorkflow } from './workflows'
 
 const LIST_LIMIT = 100
 
-type TimedRow = Pick<RunRow, 'id' | 'status' | 'startedAt' | 'events'>
-
-function statusOf(row: TimedRow): RunStatus {
-  return runStatusAt({ startedAt: row.startedAt.toISOString(), events: row.events as RunEvent[] })
-}
+type StatusRow = { id: string; status: RunStatus; liveStatus: RunStatus }
 
 /**
- * The stored status lags the timeline, so it is refreshed on read. Writes
- * only rows whose status changed.
+ * Current status from the stored timeline, computed in Postgres so lists do
+ * not download the events (the largest column). The last `run` event whose
+ * offset has passed wins; events are stored sorted by offset. Handles both
+ * jsonb shapes: drizzle 0.30 with postgres-js stores the array as a JSON
+ * string scalar.
+ *
+ * Uses the app's clock, not Postgres now(): startedAt is written by the app
+ * and runStatusAt (getRun, decideRun) also uses the app clock, so all three
+ * agree even when the machine clock drifts from the database's.
  */
-async function syncStatus(rows: TimedRow[]): Promise<Map<string, RunStatus>> {
+const liveStatus = (nowMs: number = Date.now()) => sql<RunStatus>`coalesce((
+  select e.v->>'status'
+  from jsonb_array_elements(
+    case jsonb_typeof(${runs.events}) when 'string' then (${runs.events} #>> '{}')::jsonb else ${runs.events} end
+  ) with ordinality as e(v, i)
+  where e.v->>'kind' = 'run'
+    and (e.v->>'at')::double precision <= ${String(nowMs)}::double precision - extract(epoch from ${runs.startedAt}) * 1000
+  order by e.i desc
+  limit 1
+), 'queued')`
+
+/** Writes the live status back for rows where the stored one lags. */
+async function syncStatus(rows: StatusRow[]): Promise<void> {
   const db = requireDb()
-  const current = new Map(rows.map((row) => [row.id, statusOf(row)]))
-  const stale = rows.filter((row) => current.get(row.id) !== row.status)
+  const stale = rows.filter((row) => row.liveStatus !== row.status)
   await Promise.all(
     stale.map((row) =>
-      db
-        .update(runs)
-        .set({ status: current.get(row.id), updatedAt: new Date() })
-        .where(eq(runs.id, row.id)),
+      db.update(runs).set({ status: row.liveStatus, updatedAt: new Date() }).where(eq(runs.id, row.id)),
     ),
   )
-  return current
+}
+
+function statusOf(row: Pick<RunRow, 'startedAt' | 'events'>): RunStatus {
+  return runStatusAt({ startedAt: row.startedAt.toISOString(), events: row.events as RunEvent[] })
 }
 
 function toRun(row: RunRow): Run {
@@ -68,18 +82,18 @@ export async function listRuns(): Promise<RunSummary[]> {
       workflowId: runs.workflowId,
       workflowName: runs.workflowName,
       status: runs.status,
+      liveStatus: liveStatus(),
       startedAt: runs.startedAt,
-      events: runs.events,
     })
     .from(runs)
     .orderBy(desc(runs.startedAt))
     .limit(LIST_LIMIT)
-  const status = await syncStatus(rows)
+  await syncStatus(rows)
   return rows.map((row) => ({
     id: row.id,
     workflowId: row.workflowId,
     workflowName: row.workflowName,
-    status: status.get(row.id) ?? row.status,
+    status: row.liveStatus,
     startedAt: row.startedAt.toISOString(),
   }))
 }
@@ -92,16 +106,16 @@ export async function latestRunPerWorkflow(): Promise<Map<string, LastRun>> {
       id: runs.id,
       workflowId: runs.workflowId,
       status: runs.status,
+      liveStatus: liveStatus(),
       startedAt: runs.startedAt,
-      events: runs.events,
     })
     .from(runs)
     .orderBy(runs.workflowId, desc(runs.startedAt))
-  const status = await syncStatus(rows)
+  await syncStatus(rows)
   return new Map(
     rows.map((row) => [
       row.workflowId,
-      { id: row.id, status: status.get(row.id) ?? row.status, startedAt: row.startedAt.toISOString() },
+      { id: row.id, status: row.liveStatus, startedAt: row.startedAt.toISOString() },
     ]),
   )
 }
@@ -110,7 +124,7 @@ export async function getRun(id: string): Promise<Run | null> {
   const db = requireDb()
   const [row] = await db.select().from(runs).where(eq(runs.id, id)).limit(1)
   if (!row) return null
-  await syncStatus([row])
+  await syncStatus([{ id: row.id, status: row.status, liveStatus: statusOf(row) }])
   return toRun(row)
 }
 

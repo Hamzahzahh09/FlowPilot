@@ -1,5 +1,5 @@
 import type { DataSource } from './source'
-import type { GithubSettings, Run, RunSummary, Runner, Workflow, WorkflowSummary } from './types'
+import type { GithubSettings, Run, RunStatus, RunSummary, Runner, Workflow, WorkflowSummary } from './types'
 
 // HTTP adapter for app/api (Neon). Same interface as the browser mock, so
 // pages do not change. Mutations notify subscribers so useQuery reloads.
@@ -35,10 +35,44 @@ async function request<T>(path: string, init?: { method: string; body?: unknown 
   return body as T
 }
 
-async function mutate<T>(path: string, method: string, body: unknown): Promise<T> {
+async function mutate<T>(path: string, method: string, body: unknown, keep?: (result: T) => void): Promise<T> {
   const result = await request<T>(path, { method, body })
+  // Before emit: subscribers reload right away and should find the handoff.
+  keep?.(result)
   emit()
   return result
+}
+
+// A mutation's response is the fresh resource. The next `get` of it (the
+// page navigated to, or the reload after emit) uses it once instead of
+// fetching it again. Short-lived so stale data is never served later.
+const HANDOFF_MS = 10_000
+const handoff = new Map<string, { value: unknown; until: number }>()
+
+function hand(key: string, value: unknown) {
+  handoff.set(key, { value, until: Date.now() + HANDOFF_MS })
+}
+
+function take<T>(key: string): T | undefined {
+  const entry = handoff.get(key)
+  handoff.delete(key)
+  return entry && entry.until > Date.now() ? (entry.value as T) : undefined
+}
+
+async function cached<T>(key: string, load: () => Promise<T | null>): Promise<T | null> {
+  return take<T>(key) ?? load()
+}
+
+// A run whose timeline already holds its final status never changes again
+// (the timeline is computed up front; only a decision rewrites it, and that
+// comes before the final status). Keep those for the tab, so moving between
+// the live view and the report does not fetch the same run again.
+const FINAL: ReadonlySet<RunStatus> = new Set(['succeeded', 'failed', 'cancelled', 'timed_out'])
+const finishedRuns = new Map<string, Run>()
+
+function remember(run: Run | null): Run | null {
+  if (run && run.events.some((e) => e.kind === 'run' && FINAL.has(e.status))) finishedRuns.set(run.id, run)
+  return run
 }
 
 /** Missing resources are null, like in the mock. */
@@ -62,19 +96,40 @@ export const apiSource: DataSource = {
   workflows: {
     list: async () => (await request<{ workflows: WorkflowSummary[] }>('/api/workflows')).workflows,
     get: (workflowId) =>
-      orNull(request<{ workflow: Workflow }>(`/api/workflows/${id(workflowId)}`).then((r) => r.workflow)),
+      cached(`workflow:${workflowId}`, () =>
+        orNull(request<{ workflow: Workflow }>(`/api/workflows/${id(workflowId)}`).then((r) => r.workflow)),
+      ),
     create: async (input) =>
-      (await mutate<{ workflow: Workflow }>('/api/workflows', 'POST', input ?? {})).workflow,
+      (
+        await mutate<{ workflow: Workflow }>('/api/workflows', 'POST', input ?? {}, (r) =>
+          hand(`workflow:${r.workflow.id}`, r.workflow),
+        )
+      ).workflow,
     save: async (workflowId, input) =>
-      (await mutate<{ workflow: Workflow }>(`/api/workflows/${id(workflowId)}`, 'PUT', input)).workflow,
+      (
+        await mutate<{ workflow: Workflow }>(`/api/workflows/${id(workflowId)}`, 'PUT', input, (r) =>
+          hand(`workflow:${r.workflow.id}`, r.workflow),
+        )
+      ).workflow,
   },
 
   runs: {
     list: async () => (await request<{ runs: RunSummary[] }>('/api/runs')).runs,
-    get: (runId) => orNull(request<{ run: Run }>(`/api/runs/${id(runId)}`).then((r) => r.run)),
-    start: async (workflowId) => (await mutate<{ run: Run }>('/api/runs', 'POST', { workflowId })).run,
+    get: async (runId) =>
+      finishedRuns.get(runId) ??
+      remember(
+        await cached(`run:${runId}`, () =>
+          orNull(request<{ run: Run }>(`/api/runs/${id(runId)}`).then((r) => r.run)),
+        ),
+      ),
+    start: async (workflowId) =>
+      (await mutate<{ run: Run }>('/api/runs', 'POST', { workflowId }, (r) => hand(`run:${r.run.id}`, r.run))).run,
     decide: async (runId, decision) =>
-      (await mutate<{ run: Run }>(`/api/runs/${id(runId)}/decision`, 'POST', { decision })).run,
+      (
+        await mutate<{ run: Run }>(`/api/runs/${id(runId)}/decision`, 'POST', { decision }, (r) =>
+          hand(`run:${r.run.id}`, r.run),
+        )
+      ).run,
   },
 
   runners: {
