@@ -1,10 +1,13 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { useRef, useState, type FormEvent } from 'react'
 import { Button } from '@/components/ui/Button'
+import { Spinner } from '@/components/ui/Spinner'
 import { TextField } from '@/components/ui/TextField'
+import { WaitNotice } from '@/components/ui/WaitNotice'
 import { DEMO_ACCOUNT, checkCredentials, startSession } from '@/lib/auth/demo'
+import { useNavigate } from '@/lib/navigation'
+import { useSlow } from '@/lib/useSlow'
 import styles from './LoginForm.module.css'
 
 interface LoginFormProps {
@@ -12,17 +15,41 @@ interface LoginFormProps {
   next: string
 }
 
+type Phase = 'idle' | 'signing-in' | 'loading-workspace'
+
+const PHASE_TEXT: Record<Phase, string> = {
+  idle: '',
+  'signing-in': 'Signing in as demo…',
+  'loading-workspace': 'Loading your workspace…',
+}
+
+/** Lets the browser paint the current status before the next step. */
+const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+
 export function LoginForm({ next }: LoginFormProps) {
-  const router = useRouter()
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [pending, setPending] = useState(false)
+  const [phase, setPhase] = useState<Phase>('idle')
+  const [attempt, setAttempt] = useState(0)
   const submitRef = useRef<HTMLButtonElement>(null)
+  const pending = phase !== 'idle'
+  const slow = useSlow(pending, attempt)
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+  // A full page load, not router.replace: the router may hold a prefetched
+  // redirect to /login from before the session existed (production only),
+  // and the app has its own shell anyway.
+  const openWorkspace = () => {
+    setAttempt((n) => n + 1)
+    setPhase('loading-workspace')
+    navigate.assign(next)
+  }
+
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (pending) return
     if (!email.trim() || !password) {
       setError('Enter your email and password.')
       return
@@ -32,10 +59,16 @@ export function LoginForm({ next }: LoginFormProps) {
       return
     }
     setError(null)
-    setPending(true)
-    startSession()
-    router.replace(next)
-    router.refresh()
+    setPhase('signing-in')
+    await nextFrame()
+    try {
+      startSession()
+    } catch {
+      setPhase('idle')
+      setError('Could not save the session. Allow cookies for this site and try again.')
+      return
+    }
+    openWorkspace()
   }
 
   const fillDemo = () => {
@@ -48,7 +81,13 @@ export function LoginForm({ next }: LoginFormProps) {
 
   return (
     <>
-      <form className={styles.form} onSubmit={onSubmit} noValidate aria-describedby={error ? 'login-error' : undefined}>
+      <form
+        className={styles.form}
+        onSubmit={(event) => void onSubmit(event)}
+        noValidate
+        aria-describedby={error ? 'login-error' : undefined}
+        aria-busy={pending || undefined}
+      >
         <TextField
           label="Email"
           type="email"
@@ -57,6 +96,7 @@ export function LoginForm({ next }: LoginFormProps) {
           inputMode="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          readOnly={pending}
           required
         />
         <TextField
@@ -66,6 +106,7 @@ export function LoginForm({ next }: LoginFormProps) {
           autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          readOnly={pending}
           required
           trailing={
             <button
@@ -84,6 +125,17 @@ export function LoginForm({ next }: LoginFormProps) {
           {error}
         </div>
 
+        <p role="status" aria-live="polite" className={styles.status}>
+          {pending && (
+            <>
+              <Spinner className={styles.statusSpinner} />
+              <span>{PHASE_TEXT[phase]}</span>
+            </>
+          )}
+        </p>
+
+        <WaitNotice slow={slow} onRetry={openWorkspace} />
+
         <Button
           ref={submitRef}
           type="submit"
@@ -101,7 +153,7 @@ export function LoginForm({ next }: LoginFormProps) {
         <h2 id="demo-account-title" className={styles.demoTitle}>
           Demo account
         </h2>
-        <p className={styles.demoText}>Public test credentials for judges. Data stays in this browser.</p>
+        <p className={styles.demoText}>Public test credentials for judges. Workflows and runs are shared demo data.</p>
         <dl className={styles.creds}>
           <div>
             <dt>Email</dt>
@@ -112,7 +164,7 @@ export function LoginForm({ next }: LoginFormProps) {
             <dd>{DEMO_ACCOUNT.password}</dd>
           </div>
         </dl>
-        <Button onClick={fillDemo} className={styles.useDemo}>
+        <Button onClick={fillDemo} className={styles.useDemo} disabled={pending}>
           Use demo account
         </Button>
       </section>

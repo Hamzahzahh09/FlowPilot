@@ -29,6 +29,23 @@
   display: none;
 }
 
+/* Visible progress line after a valid submit. */
+.status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.status:empty {
+  display: none;
+}
+
+.statusSpinner {
+  color: var(--accent);
+}
+
 .submit {
   width: 100%;
 }

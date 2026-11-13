@@ -14,7 +14,7 @@ After every task: `tsc --noEmit` in `apps/web`, root `pnpm lint`, fix, commit.
 - [x] 4. Slow and failed waits
   - useSlow, WaitNotice, retry in useQuery and useAction, slow navigation.
   - Requirements: R5, R6
-- [ ] 5. Login status and production login fix
+- [x] 5. Login status and production login fix
   - Requirements: R4
 - [ ] 6. Measure and fix production speed
   - Requirements: R7
