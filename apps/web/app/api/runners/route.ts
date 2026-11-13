@@ -1,11 +1,11 @@
 import { runnerCreateInputSchema } from 'shared'
-import { handle, parseBody } from '@/server/http'
+import { handle, parseBody, retryOnDrop } from '@/server/http'
 import { createRunnerToken, listRunners } from '@/server/runners'
 
 export const dynamic = 'force-dynamic'
 
 export function GET() {
-  return handle(async () => ({ runners: await listRunners() }))
+  return handle(async () => ({ runners: await retryOnDrop(listRunners) }))
 }
 
 /** Answers with the plain token once; it is not stored or logged. */

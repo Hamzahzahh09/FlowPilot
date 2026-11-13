@@ -1,11 +1,11 @@
 import { workflowCreateInputSchema } from 'shared'
-import { handle, parseBody } from '@/server/http'
+import { handle, parseBody, retryOnDrop } from '@/server/http'
 import { createWorkflow, listWorkflows } from '@/server/workflows'
 
 export const dynamic = 'force-dynamic'
 
 export function GET() {
-  return handle(async () => ({ workflows: await listWorkflows() }))
+  return handle(async () => ({ workflows: await retryOnDrop(listWorkflows) }))
 }
 
 export function POST(request: Request) {

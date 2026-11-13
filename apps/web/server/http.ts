@@ -39,6 +39,38 @@ export async function parseBody<S extends z.ZodTypeAny>(request: Request, schema
   return result.data
 }
 
+// Socket-level failures: Node codes plus postgres-js connection codes.
+const CONNECTION_CODES = new Set([
+  'ECONNRESET',
+  'EPIPE',
+  'ETIMEDOUT',
+  'ECONNREFUSED',
+  'CONNECTION_CLOSED',
+  'CONNECTION_ENDED',
+  'CONNECTION_DESTROYED',
+  'CONNECT_TIMEOUT',
+])
+
+export function isConnectionError(error: unknown): boolean {
+  const code = (error as { code?: unknown } | null)?.code
+  return typeof code === 'string' && CONNECTION_CODES.has(code)
+}
+
+/**
+ * Runs an idempotent database call, retrying once on a dropped connection
+ * (the pool then opens a fresh one). Only for reads and updates that give
+ * the same result when repeated; never for inserts.
+ */
+export async function retryOnDrop<T>(fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn()
+  } catch (error) {
+    if (!isConnectionError(error)) throw error
+    console.warn('Database connection dropped, retrying once')
+    return fn()
+  }
+}
+
 /** Runs a handler and turns thrown errors into JSON responses. */
 export async function handle(fn: () => Promise<unknown>): Promise<NextResponse> {
   try {
@@ -49,6 +81,13 @@ export async function handle(fn: () => Promise<unknown>): Promise<NextResponse> 
       return NextResponse.json(
         { error: error.message, ...(error.details ? { details: error.details } : {}) },
         { status: error.status },
+      )
+    }
+    if (isConnectionError(error)) {
+      console.warn('API database connection error:', (error as { code: string }).code)
+      return NextResponse.json(
+        { error: 'The database connection dropped or is still waking up. Try again.' },
+        { status: 503 },
       )
     }
     // Log the cause on the server only; the client gets a generic message.

@@ -1,5 +1,5 @@
 import { workflowSaveInputSchema } from 'shared'
-import { handle, idParam, notFound, parseBody } from '@/server/http'
+import { handle, idParam, notFound, parseBody, retryOnDrop } from '@/server/http'
 import { getWorkflow, saveWorkflow } from '@/server/workflows'
 
 export const dynamic = 'force-dynamic'
@@ -8,7 +8,7 @@ type Context = { params: { id: string } }
 
 export function GET(_request: Request, { params }: Context) {
   return handle(async () => {
-    const workflow = await getWorkflow(idParam(params.id, 'Workflow'))
+    const workflow = await retryOnDrop(() => getWorkflow(idParam(params.id, 'Workflow')))
     if (!workflow) throw notFound('Workflow')
     return { workflow }
   })
@@ -18,6 +18,6 @@ export function PUT(request: Request, { params }: Context) {
   return handle(async () => {
     const id = idParam(params.id, 'Workflow')
     const input = await parseBody(request, workflowSaveInputSchema)
-    return { workflow: await saveWorkflow(id, input) }
+    return { workflow: await retryOnDrop(() => saveWorkflow(id, input)) }
   })
 }
