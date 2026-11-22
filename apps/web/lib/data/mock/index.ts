@@ -96,6 +96,32 @@ export const mockSource: DataSource = {
       update((s) => ({ ...s, workflows: s.workflows.map((w) => (w.id === id ? saved : w)) }))
       return saved
     },
+
+    async delete(id) {
+      await wait()
+      update((s) => ({
+        ...s,
+        workflows: s.workflows.filter((w) => w.id !== id),
+        runs: s.runs.filter((r) => r.workflowId !== id),
+      }))
+    },
+
+    async duplicate(id) {
+      await wait()
+      const source = readState().workflows.find((w) => w.id === id)
+      if (!source) throw new Error('Workflow not found')
+      const now = new Date().toISOString()
+      const cloned: Workflow = {
+        id: newId(),
+        name: `${source.name} (Salinan)`,
+        description: source.description,
+        graph: structuredClone(source.graph),
+        createdAt: now,
+        updatedAt: now,
+      }
+      update((s) => ({ ...s, workflows: [cloned, ...s.workflows] }))
+      return cloned
+    },
   },
 
   runs: {

@@ -19,10 +19,12 @@ import { getDefaultConfig } from 'shared'
 import { PageHeader } from '@/components/app/PageHeader'
 import { DEFAULT_EDGE_OPTIONS, FIT_VIEW_OPTIONS, NODE_TYPES, PRO_OPTIONS } from '@/components/flow/config'
 import { FitOnResize } from '@/components/flow/FitOnResize'
-import { PlayIcon } from '@/components/icons'
+import { CheckIcon, CompassIcon, DownloadIcon, HelpIcon, PlayIcon, UploadIcon, XIcon } from '@/components/icons'
 import { Button } from '@/components/ui/Button'
+import { FeatureTour, type TourStep } from '@/components/ui/FeatureTour'
 import { WaitNotice } from '@/components/ui/WaitNotice'
 import { data, type Workflow } from '@/lib/data'
+import type { GraphEdge, GraphNode } from '@/lib/data/types'
 import { useAction } from '@/lib/data/hooks'
 import { newId } from '@/lib/data/ids'
 import { useNavigate } from '@/lib/navigation'
@@ -43,6 +45,44 @@ import styles from './WorkflowEditor.module.css'
 
 const DELETE_KEYS = ['Backspace', 'Delete']
 
+const TOUR_STEPS: TourStep[] = [
+  {
+    target: '[data-tour="node-picker"]',
+    title: '1. Select Pipeline Nodes',
+    content:
+      'Choose from automated inspection stages in this panel: AI Reviewer, Security Scan, Test Runner, Code Scalpel, and Human Approval. Click any node to add it to the canvas.',
+    placement: 'right',
+  },
+  {
+    target: '[data-tour="workflow-canvas"]',
+    title: '2. Build on Visual Canvas',
+    content:
+      'Design your workflow visually on this canvas. Connect nodes by dragging lines from a node’s right handle to the next node’s left handle. Pan the canvas with Space + Drag.',
+    placement: 'bottom',
+  },
+  {
+    target: '[data-tour="node-inspector"]',
+    title: '3. Node Configuration & Inspector',
+    content:
+      'Click any node on the canvas to inspect its configuration in the right panel. Customize test commands, adjust AI prompts, and inspect example outputs.',
+    placement: 'left',
+  },
+  {
+    target: '[data-tour="toolbar-export-import"]',
+    title: '4. Export & Import Workflows (JSON)',
+    content:
+      'Your workflows are fully portable! Download any workflow as a JSON file to share with your team or commit to Git, or load an existing workflow anytime.',
+    placement: 'bottom',
+  },
+  {
+    target: '[data-tour="toolbar-simulate"]',
+    title: '5. Run Workflow Simulation',
+    content:
+      'Click "Simulate push" in the top-right toolbar to simulate a GitHub push event and watch the pipeline run live: AI review, automated checks, and interactive human approval!',
+    placement: 'bottom',
+  },
+]
+
 export function EditorWorkbench({ workflow }: { workflow: Workflow }) {
   const navigate = useNavigate()
   const { screenToFlowPosition } = useReactFlow<EditorNode, Edge>()
@@ -58,6 +98,99 @@ export function EditorWorkbench({ workflow }: { workflow: Workflow }) {
   const [dirty, setDirty] = useState(false)
   const [showErrors, setShowErrors] = useState(false)
   const [message, setMessage] = useState('')
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [showHelp, setShowHelp] = useState(false)
+  const [showTour, setShowTour] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
+
+  const showToast = useCallback((msg: string) => {
+    setToast(msg)
+    const timer = setTimeout(() => {
+      setToast((curr) => (curr === msg ? null : curr))
+    }, 3500)
+    return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    try {
+      const seen = localStorage.getItem('flowpilot_tour_seen')
+      if (!seen) {
+        const timer = setTimeout(() => {
+          setShowTour(true)
+        }, 750)
+        return () => clearTimeout(timer)
+      }
+    } catch {
+      // ignore localStorage error
+    }
+  }, [])
+
+  const handleTourComplete = useCallback(() => {
+    try {
+      localStorage.setItem('flowpilot_tour_seen', 'true')
+    } catch {
+      // ignore
+    }
+    showToast('Tour completed! You are ready to build workflows.')
+  }, [showToast])
+
+  const exportWorkflow = useCallback(() => {
+    const dataToExport = {
+      name,
+      description: workflow.description,
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      graph: toGraph(nodes, edges),
+    }
+    const jsonStr = JSON.stringify(dataToExport, null, 2)
+    const blob = new Blob([jsonStr], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    const safeName = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'workflow'
+    a.download = `${safeName}.flowpilot.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      void navigator.clipboard.writeText(jsonStr)
+    }
+    showToast('Workflow exported & JSON copied to clipboard!')
+  }, [name, workflow.description, nodes, edges, showToast])
+
+  const handleImportFile = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0]
+      if (!file) return
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        try {
+          const text = event.target?.result as string
+          const parsed = JSON.parse(text)
+          const graph = parsed.graph ?? parsed
+          if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
+            throw new Error('Invalid JSON format: nodes and edges arrays required.')
+          }
+          setNodes(graph.nodes.map((n: GraphNode) => toEditorNode(n)))
+          setEdges(graph.edges.map((edge: GraphEdge) => toEditorEdge(edge)))
+          if (parsed.name && typeof parsed.name === 'string') {
+            setName(parsed.name)
+          }
+          setDirty(true)
+          showToast('Workflow successfully loaded from JSON file!')
+        } catch (err) {
+          showToast(`Failed to import: ${err instanceof Error ? err.message : 'Invalid file'}`)
+        } finally {
+          if (e.target) e.target.value = ''
+        }
+      }
+      reader.readAsText(file)
+    },
+    [setNodes, setEdges, showToast],
+  )
 
   const selectedNode = nodes.find((n) => n.selected) ?? null
   const selectedEdge = selectedNode ? null : (edges.find((e) => e.selected) ?? null)
@@ -197,6 +330,7 @@ export function EditorWorkbench({ workflow }: { workflow: Workflow }) {
     setDirty(false)
     setShowErrors(false)
     setMessage('Saved')
+    showToast('Workflow saved successfully!')
     return true
   }
 
@@ -249,6 +383,24 @@ export function EditorWorkbench({ workflow }: { workflow: Workflow }) {
             <span className={styles.saveState} data-dirty={dirty || undefined}>
               {saveState}
             </span>
+            <span data-tour="toolbar-export-import" style={{ display: 'inline-flex', gap: '8px' }}>
+              <Button
+                variant="secondary"
+                icon={<DownloadIcon size={16} />}
+                onClick={exportWorkflow}
+                title="Download and copy workflow JSON"
+              >
+                Export
+              </Button>
+              <Button
+                variant="secondary"
+                icon={<UploadIcon size={16} />}
+                onClick={() => fileInputRef.current?.click()}
+                title="Load workflow from JSON file"
+              >
+                Import
+              </Button>
+            </span>
             <Button
               onClick={save}
               disabled={busy !== null}
@@ -257,16 +409,18 @@ export function EditorWorkbench({ workflow }: { workflow: Workflow }) {
             >
               Save
             </Button>
-            <Button
-              variant="primary"
-              icon={<PlayIcon />}
-              onClick={simulate}
-              disabled={busy !== null}
-              pending={busy === 'starting'}
-              pendingLabel="Starting run…"
-            >
-              Simulate push
-            </Button>
+            <span data-tour="toolbar-simulate">
+              <Button
+                variant="primary"
+                icon={<PlayIcon />}
+                onClick={simulate}
+                disabled={busy !== null}
+                pending={busy === 'starting'}
+                pendingLabel="Starting run…"
+              >
+                Simulate push
+              </Button>
+            </span>
           </>
         }
       />
@@ -298,7 +452,7 @@ export function EditorWorkbench({ workflow }: { workflow: Workflow }) {
       <div className={styles.body}>
         <NodePicker onAdd={addNode} unavailable={hasSpark ? { spark: 'One per workflow' } : {}} />
 
-        <section ref={canvasRef} className={styles.canvas} aria-label="Workflow canvas">
+        <section ref={canvasRef} className={styles.canvas} aria-label="Workflow canvas" data-tour="workflow-canvas">
           <ReactFlow<EditorNode, Edge>
             nodes={nodes}
             edges={labelledEdges}
@@ -319,6 +473,80 @@ export function EditorWorkbench({ workflow }: { workflow: Workflow }) {
             <Background variant={BackgroundVariant.Dots} gap={22} size={1.6} color="var(--dot)" />
             <FitOnResize options={FIT_VIEW_OPTIONS} />
           </ReactFlow>
+
+          <div className={styles.canvasControls}>
+            <button
+              type="button"
+              className={styles.tourBtn}
+              onClick={() => setShowTour(true)}
+              aria-label="Start Feature Tour"
+              title="Start Feature Tour"
+            >
+              <CompassIcon size={16} />
+              <span>Feature Tour</span>
+            </button>
+            <button
+              type="button"
+              className={styles.helpBtn}
+              onClick={() => setShowHelp((prev) => !prev)}
+              aria-label="Canvas Shortcuts & Help"
+              title="Canvas Shortcuts & Help"
+            >
+              <HelpIcon size={18} />
+            </button>
+          </div>
+
+          {showHelp && (
+            <div className={styles.helpCard}>
+              <div className={styles.helpHeader}>
+                <h4 className={styles.helpTitle}>Shortcuts & Navigation</h4>
+                <button
+                  type="button"
+                  className={styles.closeBtn}
+                  onClick={() => setShowHelp(false)}
+                  aria-label="Close guide"
+                >
+                  <XIcon size={16} />
+                </button>
+              </div>
+              <ul className={styles.helpItems}>
+                <li>
+                  <span>Pan Canvas</span>
+                  <kbd>Space + Drag</kbd>
+                </li>
+                <li>
+                  <span>Zoom In / Out</span>
+                  <kbd>Mouse Scroll</kbd>
+                </li>
+                <li>
+                  <span>Delete Node / Edge</span>
+                  <kbd>Del / Backspace</kbd>
+                </li>
+                <li>
+                  <span>Connect Nodes</span>
+                  <span>Drag handles</span>
+                </li>
+                <li>
+                  <span>Export / Share</span>
+                  <span>Export (JSON)</span>
+                </li>
+              </ul>
+              <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid var(--node-hover)' }}>
+                <Button
+                  size="md"
+                  variant="primary"
+                  icon={<CompassIcon size={16} />}
+                  onClick={() => {
+                    setShowHelp(false)
+                    setShowTour(true)
+                  }}
+                  style={{ width: '100%', justifyContent: 'center' }}
+                >
+                  Start Interactive Tour
+                </Button>
+              </div>
+            </div>
+          )}
         </section>
 
         <NodeInspector
@@ -334,6 +562,29 @@ export function EditorWorkbench({ workflow }: { workflow: Workflow }) {
           onConnect={(source, target, handle: ForkBranch | null) => connect(source, target, handle)}
         />
       </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json,application/json"
+        onChange={handleImportFile}
+        style={{ display: 'none' }}
+        aria-hidden="true"
+      />
+
+      {toast && (
+        <div className={styles.toast} role="status">
+          <CheckIcon size={16} />
+          <span>{toast}</span>
+        </div>
+      )}
+
+      <FeatureTour
+        steps={TOUR_STEPS}
+        isOpen={showTour}
+        onClose={() => setShowTour(false)}
+        onComplete={handleTourComplete}
+      />
     </div>
   )
 }

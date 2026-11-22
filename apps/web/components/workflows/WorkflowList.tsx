@@ -25,11 +25,31 @@ export function WorkflowList() {
     holdOnSuccess: true,
     onSuccess: (run) => navigate.push(`/runs/${run.id}`),
   })
-  const busy = create.pending || simulate.pending
+
+  const remove = useAction((workflowId: string) => data.workflows.delete(workflowId))
+  const duplicate = useAction((workflowId: string) => data.workflows.duplicate(workflowId))
+
+  const busy = create.pending || simulate.pending || remove.pending || duplicate.pending
   const simulatingId = simulate.pendingArgs?.[0] ?? null
+  const deletingId = remove.pendingArgs?.[0] ?? null
+  const duplicatingId = duplicate.pendingArgs?.[0] ?? null
   // One notice for whichever action ran last.
-  const action = create.pending || create.error ? create : simulate
-  const actionName = action === create ? 'create the workflow' : 'start the run'
+  const action =
+    create.pending || create.error
+      ? create
+      : remove.pending || remove.error
+        ? remove
+        : duplicate.pending || duplicate.error
+          ? duplicate
+          : simulate
+  const actionName =
+    action === create
+      ? 'create the workflow'
+      : action === remove
+        ? 'delete the workflow'
+        : action === duplicate
+          ? 'duplicate the workflow'
+          : 'start the run'
 
   const newButton = (
     <Button
@@ -53,7 +73,17 @@ export function WorkflowList() {
       />
 
       <WaitNotice
-        pendingText={create.pending ? 'Creating workflow…' : simulate.pending ? 'Starting run…' : null}
+        pendingText={
+          create.pending
+            ? 'Creating workflow…'
+            : simulate.pending
+              ? 'Starting run…'
+              : remove.pending
+                ? 'Deleting workflow…'
+                : duplicate.pending
+                  ? 'Duplicating workflow…'
+                  : null
+        }
         slow={action.slow}
         error={action.error && `Could not ${actionName}: ${action.error}`}
         onRetry={action.retry}
@@ -85,8 +115,12 @@ export function WorkflowList() {
               <WorkflowCard
                 workflow={workflow}
                 onSimulate={() => void simulate.run(workflow.id)}
+                onDelete={() => void remove.run(workflow.id)}
+                onDuplicate={() => void duplicate.run(workflow.id)}
                 disabled={busy}
                 simulating={simulatingId === workflow.id}
+                deleting={deletingId === workflow.id}
+                duplicating={duplicatingId === workflow.id}
               />
             </li>
           ))}

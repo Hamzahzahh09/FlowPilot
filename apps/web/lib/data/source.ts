@@ -23,6 +23,8 @@ export interface DataSource {
     get(id: string): Promise<Workflow | null>
     create(input?: { name?: string }): Promise<Workflow>
     save(id: string, input: { name?: string; graph: WorkflowGraph }): Promise<Workflow>
+    delete(id: string): Promise<void>
+    duplicate(id: string): Promise<Workflow>
   }
 
   runs: {

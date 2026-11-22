@@ -117,6 +117,15 @@ export const apiSource: DataSource = {
           hand(`workflow:${r.workflow.id}`, r.workflow),
         )
       ).workflow,
+    delete: async (workflowId) => {
+      await mutate(`/api/workflows/${id(workflowId)}`, 'DELETE', undefined)
+    },
+    duplicate: async (workflowId) =>
+      (
+        await mutate<{ workflow: Workflow }>(`/api/workflows/${id(workflowId)}/duplicate`, 'POST', {}, (r) =>
+          hand(`workflow:${r.workflow.id}`, r.workflow),
+        )
+      ).workflow,
   },
 
   runs: {

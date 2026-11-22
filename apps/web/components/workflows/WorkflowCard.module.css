@@ -50,7 +50,38 @@
 .actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
   margin-top: auto;
   padding-top: 12px;
+}
+
+.deleteButton {
+  margin-left: auto;
+  color: var(--muted);
+}
+
+.deleteButton:hover:not(:disabled) {
+  color: var(--bad);
+  border-color: color-mix(in srgb, var(--bad) 40%, transparent);
+}
+
+.confirmBox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px dashed var(--node-hover);
+}
+
+.confirmText {
+  font-size: 13px;
+  color: var(--bad);
+  line-height: 1.4;
+}
+
+.confirmActions {
+  display: flex;
+  gap: 8px;
 }

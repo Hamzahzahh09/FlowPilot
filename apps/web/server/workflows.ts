@@ -78,6 +78,26 @@ export async function saveWorkflow(
   return toWorkflow(row)
 }
 
+export async function deleteWorkflow(id: string): Promise<void> {
+  const db = requireDb()
+  const [row] = await db.delete(workflows).where(eq(workflows.id, id)).returning({ id: workflows.id })
+  if (!row) throw notFound('Workflow')
+}
+
+export async function duplicateWorkflow(id: string): Promise<Workflow> {
+  const source = await requireWorkflow(id)
+  const db = requireDb()
+  const [row] = await db
+    .insert(workflows)
+    .values({
+      name: `${source.name} (Salinan)`,
+      description: source.description,
+      data: source.graph,
+    })
+    .returning()
+  return toWorkflow(row)
+}
+
 /** The workflow, or a 404 ApiError. */
 export async function requireWorkflow(id: string): Promise<Workflow> {
   const workflow = await getWorkflow(id)

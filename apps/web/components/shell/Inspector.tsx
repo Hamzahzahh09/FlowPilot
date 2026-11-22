@@ -7,7 +7,7 @@ interface InspectorProps {
 
 export function Inspector({ children }: InspectorProps) {
   return (
-    <aside className={styles.panel} aria-labelledby="inspector-heading">
+    <aside className={styles.panel} aria-labelledby="inspector-heading" data-tour="node-inspector">
       <h2 id="inspector-heading" className={styles.title}>
         Inspector
       </h2>

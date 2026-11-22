@@ -14,7 +14,7 @@ interface NodePickerProps {
 // Buttons, not drag sources, so adding works with keyboard and pointer alike.
 export function NodePicker({ onAdd, unavailable }: NodePickerProps) {
   return (
-    <section className={styles.picker} aria-labelledby="picker-title">
+    <section className={styles.picker} aria-labelledby="picker-title" data-tour="node-picker">
       <h2 id="picker-title" className={styles.title}>
         Add a node
       </h2>

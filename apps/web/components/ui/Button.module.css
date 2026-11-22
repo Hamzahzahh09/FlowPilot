@@ -46,6 +46,17 @@
   background: var(--node-hover);
 }
 
+.danger {
+  background: transparent;
+  color: var(--bad);
+  border-color: color-mix(in srgb, var(--bad) 35%, transparent);
+}
+
+.danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--bad) 15%, transparent);
+  border-color: var(--bad);
+}
+
 .button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
